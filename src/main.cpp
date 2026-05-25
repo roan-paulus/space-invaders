@@ -2,13 +2,15 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_log.h>
 
-#include "engine/init.h"
+#include <init.h>
+#include <renderer/renderer.h>
 
 const int WINDOW_WIDTH  = 640;
 const int WINDOW_HEIGHT = 480;
 
 int main(int argc, char** argv) {
     engine::Init engine("Hello", WINDOW_WIDTH, WINDOW_HEIGHT);
+    engine::Renderer renderer {engine.renderer};
 
     bool keep_playing {true};
     while (keep_playing) {
@@ -31,11 +33,9 @@ int main(int argc, char** argv) {
             (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 2 / 3));
         const float blue = (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 4 / 3));
 
-        SDL_SetRenderDrawColorFloat(
-            engine.renderer, red, green, blue, SDL_ALPHA_OPAQUE_FLOAT
-        );
-        SDL_RenderClear(engine.renderer);
-        SDL_RenderPresent(engine.renderer);
+        renderer.set_draw_color(red, green, blue, SDL_ALPHA_OPAQUE_FLOAT);
+        renderer.clear();
+        renderer.present();
     }
 end_while:
     SDL_Log("Hello world\n");
