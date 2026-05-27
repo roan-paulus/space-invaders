@@ -2,6 +2,8 @@
 #define RENDERER_H
 
 #include <SDL3/SDL_render.h>
+#include <renderer/rect.h>
+#include <renderer/renderer.h>
 
 namespace engine {
 
@@ -13,6 +15,11 @@ class Renderer {
 
     void set_draw_color(float r, float g, float b, float a) {
         SDL_SetRenderDrawColorFloat(renderer, r, g, b, a);
+    }
+
+    void draw_rect(Rect* rect) {
+        auto sdl_rect = rect->as_SDL_Rect();
+        SDL_RenderRect(renderer, &sdl_rect);
     }
 
     void clear() { SDL_RenderClear(renderer); }

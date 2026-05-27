@@ -5,12 +5,13 @@
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_main.h>
 
+#include "event.h"
 #include "init.h"
 #include "renderer/renderer.h"
 
 using namespace engine;
 
-Init::Init(const char* window_title, int window_width, int window_heigth) {
+Init::Init(const char* window_title, int window_width, int window_height) {
     constexpr SDL_InitFlags flags = SDL_INIT_EVENTS;
 
     if (!SDL_Init(flags)) {
@@ -21,7 +22,7 @@ Init::Init(const char* window_title, int window_width, int window_heigth) {
     if (!SDL_CreateWindowAndRenderer(
             window_title,
             window_width,
-            window_heigth,
+            window_height,
             SDL_WINDOW_RESIZABLE,
             &window,
             &_renderer
@@ -35,7 +36,7 @@ Init::Init(const char* window_title, int window_width, int window_heigth) {
     SDL_SetRenderLogicalPresentation(
         _renderer,
         window_width,
-        window_heigth,
+        window_height,
         SDL_LOGICAL_PRESENTATION_LETTERBOX
     );
 }

@@ -2,40 +2,29 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_log.h>
 
+#include "scratch.h"
+#include "window_constants.h"
 #include <init.h>
 #include <renderer/renderer.h>
 
-const int WINDOW_WIDTH  = 640;
-const int WINDOW_HEIGHT = 480;
-
 int main(int argc, char** argv) {
     engine::Init engine("Hello", WINDOW_WIDTH, WINDOW_HEIGHT);
-    engine::Renderer renderer {engine.renderer};
+    game::World world;
 
-    bool keep_playing {true};
-    while (keep_playing) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                goto end_while;
-            }
-            if (event.type == SDL_EVENT_KEY_DOWN) {
-                if (event.key.scancode == SDL_SCANCODE_Q) {
-                    goto end_while;
-                }
-            }
+    // Ship player(0, 0, 80, 80);
+    while (engine.event.keep_playing) {
+        engine.renderer.clear();
+
+        world.player.draw(&engine.renderer);
+
+        // update();
+        while (engine.event.poll()) {
+            engine.event.handle();
+            world.player.handle_input(&engine.event);
         }
 
-        const double now = ((double)SDL_GetTicks()) / 1000.0;
-
-        const float red = (float)(0.5 + 0.5 * SDL_sin(now));
-        const float green =
-            (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 2 / 3));
-        const float blue = (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 4 / 3));
-
-        renderer.set_draw_color(red, green, blue, SDL_ALPHA_OPAQUE_FLOAT);
-        renderer.clear();
-        renderer.present();
+        engine.renderer.set_draw_color(0, 0, 0, 0);
+        engine.renderer.present();
     }
 end_while:
     SDL_Log("Hello world\n");
