@@ -7,11 +7,11 @@
 
 #include "event.h"
 #include "init.h"
-#include "renderer/renderer.h"
 
-using namespace engine;
-
-Init::Init(const char* window_title, int window_width, int window_height) {
+void initialize_sdl(
+    SDLContext* ctx, const char* window_title, int window_width,
+    int window_height
+) {
     constexpr SDL_InitFlags flags = SDL_INIT_EVENTS;
 
     if (!SDL_Init(flags)) {
@@ -24,17 +24,15 @@ Init::Init(const char* window_title, int window_width, int window_height) {
             window_width,
             window_height,
             SDL_WINDOW_RESIZABLE,
-            &window,
-            &_renderer
+            &ctx->window,
+            &ctx->renderer
         )) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         std::exit(EXIT_FAILURE);
     }
 
-    renderer = engine::Renderer(_renderer);
-
     SDL_SetRenderLogicalPresentation(
-        _renderer,
+        ctx->renderer,
         window_width,
         window_height,
         SDL_LOGICAL_PRESENTATION_LETTERBOX
