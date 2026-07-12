@@ -2,7 +2,7 @@
 
 Ship create_ship() {
     Ship s = {
-        .shape = {
+        .body = {
             .x = start_pos_x,
             .y = start_pos_y,
             .w = width,

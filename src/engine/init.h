@@ -3,10 +3,13 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <engine/text/text_renderer.h>
 
 struct SDLContext {
     SDL_Window* window;
     SDL_Renderer* renderer;
+    TextRenderer text_renderer;
 };
 
 void initialize_sdl(

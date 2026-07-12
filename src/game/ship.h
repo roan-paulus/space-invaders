@@ -13,13 +13,13 @@ constexpr float start_pos_x = WINDOW_WIDTH / 2 - width / 2;
 constexpr float start_pos_y = WINDOW_HEIGHT / 8 * 7;
 
 struct Ship {
-    SDL_FRect shape {};
+    SDL_FRect body {};
 
     void handle_input(SDL_Event* event) {}
     // void update {}
     void draw(SDL_Renderer* renderer) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderRect(renderer, &shape);
+        SDL_RenderRect(renderer, &body);
     }
 };
 
