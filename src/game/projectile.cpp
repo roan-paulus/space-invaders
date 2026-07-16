@@ -36,7 +36,16 @@ Projectile create_projectile(Direction initial_direction, float x, float y) {
     };
 }
 
-void draw_projectile(Projectile* projectile, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    // TODO
+void update_projectiles(Projectiles& projectiles) {
+    for (auto& proj : projectiles) {
+        proj.body.x += proj.velocity.x;
+        proj.body.y += proj.velocity.y;
+    }
+}
+
+void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer) {
+    for (auto proj : projectiles) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderRect(renderer, &proj.body);
+    }
 }

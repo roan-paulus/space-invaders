@@ -7,6 +7,16 @@
 struct Grunt {
     SDL_FRect body;
     float hitpoints;
+
+    Grunt() {
+        hitpoints = 1;
+        body = {
+            .x = 0,
+            .y = 0,
+            .w = 5,
+            .h = 5,
+        };
+    }
 };
 
 struct EnemyGrid {
@@ -15,5 +25,7 @@ struct EnemyGrid {
 };
 
 EnemyGrid create_enemy_grid(float world_width, float world_height);
+
+void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth);
 
 #endif

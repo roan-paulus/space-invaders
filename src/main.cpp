@@ -19,6 +19,8 @@
 #include <iostream>
 #include <filesystem>
 
+#include <game/state.h>
+
 void assert(bool expression, const char* message) {
     if (expression) {
         return;
@@ -29,33 +31,79 @@ void assert(bool expression, const char* message) {
 
 const bool render_fps = false;
 
-void start_screen(SDLContext& ctx, Game& game, SDL_Event& event) {
+enum class Selection {
+    Start = 0,
+    Exit = 1,
+};
+
+struct StartScreenState {
+    Selection selection;
+};
+
+void start_screen(SDLContext& ctx, Game& game, SDL_Event& event, StartScreenState& state) {
     while (SDL_PollEvent(&event)) {
-        handle(&event, game);
+        switch (event.type) {
+        case SDL_EVENT_QUIT: {
+            game.running = false;
+        }
+        case SDL_EVENT_KEY_DOWN: {
+            switch (event.key.scancode) {
+            case SDL_SCANCODE_UP: {
+                state.selection = Selection::Start;
+                break;
+            }
+            case SDL_SCANCODE_DOWN: {
+                state.selection = Selection::Exit;
+                break;
+            }
+            case SDL_SCANCODE_SPACE: {
+                switch (state.selection) {
+                case Selection::Start: {
+                    game.state = State::Game;
+                    break;
+                }
+                case Selection::Exit: {
+                    game.running = false;
+                    break;
+                }
+                }
+                break;
+            }
+            }
+        }
+        }
     }
+
+    std::vector<std::string> options {
+        "Start game", "Exit game"
+    };
+
+    const int parts = 20;
     std::string a = "Space Invaders";
     int w, h;
     SDL_GetWindowSize(ctx.window, &w, &h);
-    ctx.text_renderer.draw(a, w / 2 - a.length(), h / 3);
+    ctx.text_renderer.draw(a, w / 2 - a.length(), h / parts * 1);
 
-    std::string b = "Start game";
-    ctx.text_renderer.draw(b, w / 2 - b.length(), h / 3 * 2);
+    for (unsigned int i; i < options.size(); ++i) {
+        std::string& text = options[i];
+        if ((unsigned int)state.selection == i) {
+            text.insert(0, "> ");
+        }
+        ctx.text_renderer.draw(text, w / 2 - text.length(), h / parts * (10 + i));
+    }
 }
 
-void game_inner_loop(SDLContext& ctx, Game& game, SDL_Event& event) {
+void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event) {
     while (SDL_PollEvent(&event)) {
         handle(&event, game);
     }
+    update_projectiles(game.projectiles);
 
-    for (auto& proj : game.projectiles) {
-        proj.body.x += proj.velocity.x;
-        proj.body.y += proj.velocity.y;
-    }
+    int w, h;
+    SDL_GetWindowSize(ctx.window, &w, &h);
+    update_enemy_grid(game.enemy_grid, w, h);
 
-    for (auto proj : game.projectiles) {
-        SDL_SetRenderDrawColor(ctx.renderer, 255, 255, 255, 255);
-        SDL_RenderRect(ctx.renderer, &proj.body);
-    }
+    draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);
     SDL_RenderRect(ctx.renderer, &game.enemy_grid.body);
 }
@@ -66,14 +114,25 @@ void game_loop(SDLContext& ctx, Game& game) {
 
     Uint64 frame_count = 0;
 
+    StartScreenState start_screen_state = {
+        .selection = Selection::Start,
+    };
     SDL_Event event;
     while (game.running) {
         Uint64 start = SDL_GetTicks();
 
         SDL_RenderClear(ctx.renderer);
 
-        // game_inner_loop(ctx, game, event);
-        start_screen(ctx, game, event);
+        switch (game.state) {
+        case State::Start: {
+            start_screen(ctx, game, event, start_screen_state);
+            break;
+        }
+        case State::Game: {
+            main_game_loop(ctx, game, event);
+            break;
+        }
+        }
 
         SDL_SetRenderDrawColor(ctx.renderer, 0, 0, 0, 0);
         SDL_RenderPresent(ctx.renderer);
@@ -112,6 +171,8 @@ int main(int argc, char** argv) {
         .enemy_grid  = create_enemy_grid(WINDOW_WIDTH, WINDOW_HEIGHT),
         .projectiles = {},
         .running     = true,
+        .frame       {},
+        .state       = State::Start,
     };
     game_loop(ctx, game);
     SDL_Log("Exiting Game.\n");
