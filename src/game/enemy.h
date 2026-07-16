@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <SDL3/SDL_rect.h>
+#include <engine/physics/direction.h>
 
 struct Grunt {
     SDL_FRect body;
@@ -21,6 +22,7 @@ struct Grunt {
 
 struct EnemyGrid {
     SDL_FRect body;
+    Direction direction;
     std::vector<Grunt> grunts;
 };
 

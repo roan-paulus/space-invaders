@@ -24,21 +24,39 @@ EnemyGrid create_enemy_grid(
 
     return {
 	.body = enemy_grid,
+	.direction = Direction::right,
 	.grunts = grunts,
     };
 }
 
 void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth) {
-    // TODO: this can't be it keeps getting called per loop, so this function does not remeber any state.
-    float add = 1;
-    if (enemy_grid.body.x + enemy_grid.body.w >= window_width || enemy_grid.body.x <= 0) {
-	add * -1;
+    const bool touched_right_side_screen_boundary =
+	enemy_grid.body.x + enemy_grid.body.w >= window_width;
+
+    float step = 10;
+
+    if (touched_right_side_screen_boundary) {
+	enemy_grid.direction = Direction::left;
+	enemy_grid.body.y += step;
+    } else if (enemy_grid.body.x <= 0) {
+	enemy_grid.direction = Direction::right;
+	enemy_grid.body.y += step;
     }
-    enemy_grid.body.x += add;
-    float row = 1;
+
+    switch (enemy_grid.direction) {
+    case Direction::left: {
+	enemy_grid.body.x -= 1;
+	break;
+    }
+    case Direction::right: {
+	enemy_grid.body.x += 1;
+	break;
+    }
+    }
+
     for (unsigned int i; i < enemy_grid.grunts.size(); ++i) {
 	Grunt grunt = enemy_grid.grunts[i];
 	grunt.body.x = i * grunt.body.w;
-	grunt.body.y = row;
+	grunt.body.y = 0;
     }
 }

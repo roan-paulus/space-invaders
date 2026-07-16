@@ -5,14 +5,8 @@
 
 #include <SDL3/SDL_rect.h>
 #include "ship.h"
-#include "engine/vec2.h"
-
-enum class Direction {
-    up,
-    down,
-    left,
-    right,
-};
+#include <engine/vec2.h>
+#include <engine/physics/direction.h>
 
 struct Projectile {
     SDL_FRect body;
