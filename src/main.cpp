@@ -22,8 +22,8 @@
 #include <game/state.h>
 #include <game/start_screen.h>
 
-void assert(bool expression, const char* message) {
-    if (expression) {
+void assert(bool is_true, const char* message) {
+    if (is_true) {
         return;
     }
     std::cout << "Assertion Error: " << message << std::endl;
