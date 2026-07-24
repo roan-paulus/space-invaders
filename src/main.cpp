@@ -14,7 +14,7 @@
 #include "game/game.h"
 #include "window_constants.h"
 #include <engine/init.h>
-#include <game/enemy.h>
+#include <game/enemy_grid.h>
 #include <fstream>
 #include <iostream>
 #include <filesystem>
@@ -39,12 +39,12 @@ void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event) {
     update_projectiles(game.projectiles);
 
     int w, h;
-    SDL_GetWindowSize(ctx.window, &w, &h);
+    SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
     update_enemy_grid(game.enemy_grid, w, h);
 
+    game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);
-    SDL_RenderRect(ctx.renderer, &game.enemy_grid.body);
 }
 
 void game_loop(SDLContext& ctx, Game& game) {
@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
     initialize_sdl(&ctx, "Space Invaders", WINDOW_WIDTH, WINDOW_HEIGHT);
     Game game = {
         .player      = create_ship(),
-        .enemy_grid  = create_enemy_grid(WINDOW_WIDTH, WINDOW_HEIGHT),
+        .enemy_grid  = create_enemy_grid(WINDOW_WIDTH, WINDOW_HEIGHT, "level_1"),
         .projectiles = {},
         .running     = true,
         .frame       {},

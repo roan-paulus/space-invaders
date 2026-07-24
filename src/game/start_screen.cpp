@@ -41,7 +41,7 @@ void start_screen(SDLContext& ctx, Game& game, SDL_Event& event, StartScreenStat
     const int parts = 20;
     std::string a = "Space Invaders";
     int w, h;
-    SDL_GetWindowSize(ctx.window, &w, &h);
+    SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
     ctx.text_renderer.draw(a, w / 2 - a.length(), h / parts * 1);
 
     for (unsigned int i; i < options.size(); ++i) {

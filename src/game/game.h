@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include <game/ship.h>
-#include <game/enemy.h>
+#include <game/enemy_grid.h>
 #include <vector>
 #include <SDL3/SDL_rect.h>
 #include <game/projectile.h>
