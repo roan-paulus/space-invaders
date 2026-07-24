@@ -18,7 +18,8 @@ void initialize_sdl(
 
     if (!SDL_Init(flags)) {
         SDL_LogError(0, SDL_GetError());
-        std::exit(EXIT_FAILURE);
+        cleanup(ctx);
+        return;
     }
 
     if (!SDL_CreateWindowAndRenderer(
@@ -30,7 +31,8 @@ void initialize_sdl(
             &ctx->renderer
         )) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-        std::exit(EXIT_FAILURE);
+        cleanup(ctx);
+        return;
     }
 
     SDL_SetRenderLogicalPresentation(
@@ -54,4 +56,11 @@ void initialize_sdl(
     if (ctx->text_renderer.font == nullptr) {
         SDL_Log("Could not load font: %s", SDL_GetError());
     }
+}
+
+void cleanup(SDLContext* ctx) {
+    TTF_DestroyRendererTextEngine(ctx->text_renderer.text_engine);
+    SDL_DestroyRenderer(ctx->renderer);
+    SDL_DestroyWindow(ctx->window);
+    SDL_Quit();
 }

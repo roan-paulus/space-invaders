@@ -115,6 +115,6 @@ int main(int argc, char** argv) {
     };
     game_loop(ctx, game);
     SDL_Log("Exiting Game.\n");
-    SDL_Quit();
+    cleanup(&ctx);
     return 0;
 }

@@ -12,6 +12,8 @@ struct SDLContext {
     TextRenderer text_renderer;
 };
 
+void cleanup(SDLContext* ctx);
+
 void initialize_sdl(
     SDLContext* ctx, const char* window_title, int window_width,
     int window_height
