@@ -1,27 +1,7 @@
 #include "projectile.h"
+#include <algorithm>
 
-Projectile create_projectile(Direction initial_direction, float x, float y) {
-    float start_vel_x { 0 };
-    float start_vel_y { 0 };
-
-    switch (initial_direction) {
-        case Direction::up: {
-            start_vel_y = -1;
-            break;
-        }
-        case Direction::down: {
-            start_vel_y = 1;
-            break;
-        }
-        case Direction::left: {
-            start_vel_x = -1;
-            break;
-        }
-        case Direction::right: {
-            start_vel_x = 1;
-            break;
-        }
-    }
+Projectile create_projectile(float x, float y) {
     return {
         .body = {
             .x = x,
@@ -30,17 +10,32 @@ Projectile create_projectile(Direction initial_direction, float x, float y) {
             .h = 10,
         },
         .velocity = {
-            .x = start_vel_x,
-            .y = start_vel_y,
+            .x = 0,
+            .y = -256,
         },
+        .out_of_bounds{ false },
     };
 }
 
-void update_projectiles(Projectiles& projectiles) {
-    for (auto& proj : projectiles) {
-        proj.body.x += proj.velocity.x;
-        proj.body.y += proj.velocity.y;
+void update_projectiles(Projectiles& projectiles, float delta_time) {
+    for (auto& proj: projectiles) {
+        // Add height to give the effect of leaving the area.
+        if (proj.body.y + proj.body.h <= 0) {
+            proj.out_of_bounds = true;
+        }
+        proj.body.x += proj.velocity.x * delta_time;
+        proj.body.y += proj.velocity.y * delta_time;
     }
+
+    projectiles.erase(
+        std::remove_if(
+            projectiles.begin(), projectiles.end(),
+            [](const Projectile& entity) {
+                return entity.out_of_bounds;
+            }
+        ),
+        projectiles.end()
+    );
 }
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer) {

@@ -11,14 +11,15 @@
 struct Projectile {
     SDL_FRect body;
     Vec2 velocity;
+    bool out_of_bounds{ false };
 };
 
 using Projectiles = std::vector<Projectile>;
 
-Projectile create_projectile(Direction initial_direction, float x, float y);
+Projectile create_projectile(float x, float y);
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer);
 
-void update_projectiles(Projectiles& projectiles);
+void update_projectiles(Projectiles& projectiles, float delta_time);
 
 #endif

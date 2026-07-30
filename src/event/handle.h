@@ -6,6 +6,6 @@
 
 void handle_key_down(SDL_Scancode scancode, Game& game);
 
-void handle(SDL_Event* event, Game& game);
+void handle(SDL_Event* event, Game& game, float delta_time);
 
 #endif

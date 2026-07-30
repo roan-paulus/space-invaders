@@ -4,8 +4,9 @@ project(SpaceInvaders)
 
 set(SDLTTF_VENDORED ON)
 
-add_subdirectory(vendor/SDL/)
-add_subdirectory(vendor/SDL_TTF/)
+add_subdirectory(vendor/SDL)
+add_subdirectory(vendor/SDL_TTF)
+add_subdirectory(vendor/SDL_image)
 
 add_executable(SpaceInvaders)
 
@@ -18,4 +19,4 @@ target_sources(SpaceInvaders
         ${SRC_FILES}
 )
 target_include_directories(SpaceInvaders PRIVATE src/)
-target_link_libraries(SpaceInvaders PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3)
+target_link_libraries(SpaceInvaders PRIVATE SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf SDL3::SDL3)

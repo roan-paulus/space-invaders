@@ -6,16 +6,16 @@
 #include <cctype>
 
 #include <SDL3/SDL_log.h>
+#include <SDL3_image/SDL_image.h>
 
 #include "grunt.h"
 #include <engine/io/reader.h>
+#include <engine/vec2.h>
 #include <game/config.h>
+#include <game/timer.h>
 
 GruntGrid parse_grid_layout(std::string& content) {
     GruntGrid grid {};
-
-    enemy_col_amount;
-    enemy_row_amount;
 
     // enemy_row_amount are also the amount of '|' which are not part of the array.
     if (content.length() - enemy_row_amount != enemy_col_amount * enemy_row_amount) {
@@ -52,7 +52,8 @@ GruntGrid parse_grid_layout(std::string& content) {
 EnemyGrid create_enemy_grid(
     float world_width,
     float world_height,
-    std::string file_path
+    std::string file_path,
+    SDL_Texture* enemy_texture
 ) {
     GruntGrid grid = {};
 
@@ -69,7 +70,7 @@ EnemyGrid create_enemy_grid(
     const float slice_amount = 9;
     float slice = world_width / slice_amount;
 
-    return {
+    EnemyGrid result{
 	.body = {
 	    .x = slice,
 	    .y = 0,
@@ -78,30 +79,52 @@ EnemyGrid create_enemy_grid(
 	},
 	.direction = Direction::right,
 	.enemies = grid,
+	.timer = { .length = 1, .timeout = true },
+	.animation = Animation{
+	    .frame_amount = 3,
+	    .frame = 0, 
+	    .texture = enemy_texture,
+	    .frame_body {
+		.x = 0,
+		.y = 0,
+		.w = 32,
+		.h = 32,
+	    },
+	},
     };
+    return result;
 }
 
-void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth) {
+void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth, float delta_time) {
+    if (!enemy_grid.timer.isTimeoutAndStep(delta_time)) {
+	return;
+    }
+
+    enemy_grid.animation.next();
+
     const bool touched_right_side_screen_boundary =
 	enemy_grid.body.x + enemy_grid.body.w >= window_width;
 
-    float step = 10;
+    Vec2 velocity = {
+	.x = 15,
+	.y = 15,
+    };
 
     if (touched_right_side_screen_boundary) {
 	enemy_grid.direction = Direction::left;
-	enemy_grid.body.y += step;
+	enemy_grid.body.y += velocity.y;
     } else if (enemy_grid.body.x <= 0) {
 	enemy_grid.direction = Direction::right;
-	enemy_grid.body.y += step;
+	enemy_grid.body.y += velocity.y;
     }
 
     switch (enemy_grid.direction) {
     case Direction::left: {
-	enemy_grid.body.x -= 1;
+	enemy_grid.body.x -= velocity.x;
 	break;
     }
     case Direction::right: {
-	enemy_grid.body.x += 1;
+	enemy_grid.body.x += velocity.x;
 	break;
     }
     }
@@ -125,5 +148,11 @@ void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigt
 		++eb_i;
 	    }
 	}
+    }
+}
+
+void EnemyGrid::draw(SDL_Renderer* renderer) {
+    for (auto& enemy_body: enemy_bodies) {
+	animation.draw(renderer, &enemy_body);
     }
 }
