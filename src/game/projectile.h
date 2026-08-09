@@ -12,6 +12,7 @@ struct Projectile {
     SDL_FRect body;
     Vec2 velocity;
     bool out_of_bounds{ false };
+    Animation animation;
 };
 
 using Projectiles = std::vector<Projectile>;

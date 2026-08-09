@@ -1,7 +1,10 @@
 #include "projectile.h"
+
 #include <algorithm>
 
-Projectile create_projectile(float x, float y) {
+#include <game/enemy_grid.h>
+
+Projectile create_projectile(float x, float y, SDL_Texture* texture) {
     return {
         .body = {
             .x = x,
@@ -14,10 +17,21 @@ Projectile create_projectile(float x, float y) {
             .y = -256,
         },
         .out_of_bounds{ false },
+        .animation{
+            .frame_amount = 1,
+            .frame = 0,
+            .texture = texture,
+            .frame_body{
+                .x = 0,
+                .y = 0,
+                .w = 32,
+                .h = 32,
+            },
+        },
     };
 }
 
-void update_projectiles(Projectiles& projectiles, float delta_time) {
+void update_projectiles(Projectiles& projectiles, EnemyGrid& enemy_grid, float delta_time) {
     for (auto& proj: projectiles) {
         // Add height to give the effect of leaving the area.
         if (proj.body.y + proj.body.h <= 0) {

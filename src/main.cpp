@@ -24,52 +24,14 @@
 #include <game/state.h>
 #include <game/start_screen.h>
 
-void assert(bool is_true, const char* message) {
-    if (is_true) {
-        return;
-    }
-    std::cout << "Assertion Error: " << message << std::endl;
-    std::exit(1);
-}
-
-const bool render_fps = false;
-
-void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event, float delta_time) {
-    while (SDL_PollEvent(&event)) {
-        handle(&event, game, delta_time);
-    }
-
-    const bool* state = SDL_GetKeyboardState(nullptr);
-    if (state[SDL_SCANCODE_LEFT]) {
-        game.player.body.x -= game.player.velocity.x * delta_time;
-    }
-    if (state[SDL_SCANCODE_RIGHT]) {
-        game.player.body.x += game.player.velocity.x * delta_time;
-    }
-
-    update_projectiles(game.projectiles, delta_time);
-
-    int w, h;
-    SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
-    update_enemy_grid(game.enemy_grid, w, h, delta_time);
-
-    game.enemy_grid.draw(ctx.renderer);
-    draw_projectile(game.projectiles, ctx.renderer);
-    game.player.draw(ctx.renderer);
-}
-
-void assert_startup_state() {
-    // 1920x1080 = fullscreen
-    const int aspect_ratio_width  = 16;
-    const int aspect_ratio_height = 9;
-    assert(WINDOW_WIDTH % aspect_ratio_width == 0, "WINDOW_WIDTH is wrong");
-    assert(WINDOW_HEIGHT % aspect_ratio_height == 0, "WINDOW_HEIGHT is wrong");
-}
-
 // Player start variables.
 constexpr float width       = 30;
 constexpr float start_pos_x = WINDOW_WIDTH / 2 - width / 2;
 constexpr float start_pos_y = WINDOW_HEIGHT / 8 * 7;
+
+void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event, float delta_time);
+void assert(bool is_true, const char* message);
+void assert_startup_state();
 
 int main(int argc, char** argv) {
     SDLContext ctx;
@@ -78,6 +40,7 @@ int main(int argc, char** argv) {
     TextureLoader texture_loader{ ctx.renderer };
     SDL_Texture* enemy_birdie_texture{ texture_loader.load("assets/enemy_birdie.png") };
     SDL_Texture* player_texture{ texture_loader.load("assets/player_bird.png") };
+    SDL_Texture* bullet_texture{ texture_loader.load("assets/bullet.png") };
 
     Game game = {
         .player = {
@@ -144,13 +107,56 @@ int main(int argc, char** argv) {
         constexpr Uint64 desired_loop_duration_ms = 8;
         // Prevent overflow.
         if (loop_duration_ms <= desired_loop_duration_ms) {
-            // Cap compute to prevent CPU going like brrrrrrrrr.
+            // Cap compute to prevent CPU going like brrrrrrrrr. TODO: Use sdl vsync?
             SDL_Delay(desired_loop_duration_ms - loop_duration_ms);
         }
     }
 
     SDL_Log("Exiting Game.\n");
     SDL_DestroyTexture(enemy_birdie_texture);
+    SDL_DestroyTexture(player_texture);
+    SDL_DestroyTexture(bullet_texture);
     cleanup(&ctx);
     return 0;
 }
+
+void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event, float delta_time) {
+    while (SDL_PollEvent(&event)) {
+        handle(&event, game, delta_time);
+    }
+
+    const bool* state = SDL_GetKeyboardState(nullptr);
+    if (state[SDL_SCANCODE_LEFT]) {
+        game.player.body.x -= game.player.velocity.x * delta_time;
+    }
+    if (state[SDL_SCANCODE_RIGHT]) {
+        game.player.body.x += game.player.velocity.x * delta_time;
+    }
+
+    update_projectiles(game.projectiles, game.enemy_grid, delta_time);
+
+    int w, h;
+    SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
+    update_enemy_grid(game.enemy_grid, game.projectiles, w, h, delta_time);
+
+    game.enemy_grid.draw(ctx.renderer);
+    draw_projectile(game.projectiles, ctx.renderer);
+    game.player.draw(ctx.renderer);
+}
+
+void assert(bool is_true, const char* message) {
+    if (is_true) {
+        return;
+    }
+    std::cout << "Assertion Error: " << message << std::endl;
+    std::exit(1);
+}
+
+void assert_startup_state() {
+    // 1920x1080 = fullscreen
+    const int aspect_ratio_width  = 16;
+    const int aspect_ratio_height = 9;
+    assert(WINDOW_WIDTH % aspect_ratio_width == 0, "WINDOW_WIDTH is wrong");
+    assert(WINDOW_HEIGHT % aspect_ratio_height == 0, "WINDOW_HEIGHT is wrong");
+}
+
