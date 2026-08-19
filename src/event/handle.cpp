@@ -13,7 +13,7 @@ void handle_key_down(SDL_Scancode scancode, Game& game, float delta_time) {
     }
     case SDL_SCANCODE_SPACE: {
         auto& player = game.player;
-        Projectile projectile = create_projectile(player.body.x, player.body.y);
+        Projectile projectile = create_projectile(player.body.x, player.body.y, game.bullet_texture);
         // Center the projectile relative to the player size.
         projectile.body.x = (projectile.body.x + player.body.w / 2) - projectile.body.w / 2;
         // Spawn above the player.

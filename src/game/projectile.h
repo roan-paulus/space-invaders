@@ -17,7 +17,7 @@ struct Projectile {
 
 using Projectiles = std::vector<Projectile>;
 
-Projectile create_projectile(float x, float y);
+Projectile create_projectile(float x, float y, SDL_Texture* texture);
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer);
 

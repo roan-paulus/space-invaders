@@ -40,7 +40,10 @@ GruntGrid parse_grid_layout(std::string& content) {
 	    if (std::isdigit(c)) {
 		// TODO: use a different enemy template based on this number (digit c).
 		int hitpoints = 1; 
-		auto grunt = Grunt(hitpoints);
+		Grunt grunt = {
+		    .hitpoints = hitpoints,
+		    .body {},
+		};
 		grid[row][i % enemy_col_amount] = grunt;
 	    }
 	}
@@ -63,7 +66,7 @@ EnemyGrid create_enemy_grid(
     } else {
 	const unsigned int grunt_amount = 30;
 	for (unsigned int i = 0; i < grunt_amount; ++i) {
-	    grid[i / 32][i] = Grunt(1);
+	    grid[i / 32][i] = Grunt { 1 };
 	}
     }
 

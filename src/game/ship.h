@@ -4,7 +4,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_render.h>
 
-#include "event.h"
 #include "window_constants.h"
 #include <engine/vec2.h>
 #include <game/animation.h>

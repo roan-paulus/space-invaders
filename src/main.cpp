@@ -23,6 +23,7 @@
 
 #include <game/state.h>
 #include <game/start_screen.h>
+#include <game/projectile.h>
 
 // Player start variables.
 constexpr float width       = 30;
@@ -68,6 +69,7 @@ int main(int argc, char** argv) {
         },
         .enemy_grid  = create_enemy_grid(WINDOW_WIDTH, WINDOW_HEIGHT, "level_1", enemy_birdie_texture),
         .projectiles = {},
+        .bullet_texture = bullet_texture,
         .running     = true,
         .frame       {},
         .state       = State::Start,
@@ -133,11 +135,11 @@ void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event, float delta_t
         game.player.body.x += game.player.velocity.x * delta_time;
     }
 
-    update_projectiles(game.projectiles, game.enemy_grid, delta_time);
+    update_projectiles(game.projectiles, delta_time);
 
     int w, h;
     SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
-    update_enemy_grid(game.enemy_grid, game.projectiles, w, h, delta_time);
+    update_enemy_grid(game.enemy_grid, w, h, delta_time);
 
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);

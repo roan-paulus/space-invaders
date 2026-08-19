@@ -31,7 +31,7 @@ Projectile create_projectile(float x, float y, SDL_Texture* texture) {
     };
 }
 
-void update_projectiles(Projectiles& projectiles, EnemyGrid& enemy_grid, float delta_time) {
+void update_projectiles(Projectiles& projectiles, float delta_time) {
     for (auto& proj: projectiles) {
         // Add height to give the effect of leaving the area.
         if (proj.body.y + proj.body.h <= 0) {

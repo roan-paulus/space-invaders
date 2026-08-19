@@ -6,7 +6,6 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-#include "event.h"
 #include "init.h"
 #include <engine/text/text_renderer.h>
 
@@ -51,7 +50,7 @@ void initialize_sdl(
     }
     ctx->text_renderer = {
         .text_engine = TTF_CreateRendererTextEngine(ctx->renderer),
-        .font = TTF_OpenFont("/usr/share/fonts/noto/NotoSans-CondensedBold.ttf", 14.0f),
+        .font = TTF_OpenFont("/usr/share/fonts/truetype/noto/NotoSans-CondensedBold.ttf", 14.0f),
     };
     if (ctx->text_renderer.font == nullptr) {
         SDL_Log("Could not load font: %s", SDL_GetError());

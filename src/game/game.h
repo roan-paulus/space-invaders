@@ -13,6 +13,7 @@ struct Game {
     Ship player;
     EnemyGrid enemy_grid;
     std::vector<Projectile> projectiles;
+    SDL_Texture* bullet_texture;
     bool running;
     Frame frame;
     State state;
