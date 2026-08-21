@@ -44,7 +44,7 @@ void start_screen(SDLContext& ctx, Game& game, SDL_Event& event, StartScreenStat
     SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
     ctx.text_renderer.draw(a, w / 2 - a.length(), h / parts * 1);
 
-    for (unsigned int i; i < options.size(); ++i) {
+    for (unsigned int i = 0; i < options.size(); ++i) {
         std::string& text = options[i];
         if ((unsigned int)state.selection == i) {
             text.insert(0, "> ");
