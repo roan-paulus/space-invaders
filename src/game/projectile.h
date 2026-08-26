@@ -4,9 +4,10 @@
 #include <vector>
 
 #include <SDL3/SDL_rect.h>
-#include "ship.h"
 #include <engine/vec2.h>
 #include <engine/physics/direction.h>
+
+#include "game/animation.h"
 
 struct Projectile {
     SDL_FRect body;
@@ -17,7 +18,7 @@ struct Projectile {
 
 using Projectiles = std::vector<Projectile>;
 
-Projectile create_projectile(float x, float y, SDL_Texture* texture);
+Projectile create_projectile(float x, float y);
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer);
 

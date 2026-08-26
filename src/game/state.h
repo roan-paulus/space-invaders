@@ -4,7 +4,6 @@
 enum class State {
     Start,
     Game,
-    Pause,
 };
 
 #endif

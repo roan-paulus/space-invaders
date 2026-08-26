@@ -4,7 +4,7 @@
 
 #include <game/enemy_grid.h>
 
-Projectile create_projectile(float x, float y, SDL_Texture* texture) {
+Projectile create_projectile(float x, float y) {
     return {
         .body = {
             .x = x,
@@ -16,11 +16,10 @@ Projectile create_projectile(float x, float y, SDL_Texture* texture) {
             .x = 0,
             .y = -256,
         },
-        .out_of_bounds{ false },
+        .out_of_bounds = false,
         .animation{
             .frame_amount = 1,
             .frame = 0,
-            .texture = texture,
             .frame_body{
                 .x = 0,
                 .y = 0,

@@ -1,8 +1,6 @@
 #include <cmath>
 #include <iostream>
-#include <stdio.h>
 #include <unistd.h>
-#include <string>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
@@ -17,20 +15,26 @@
 #include <engine/init.h>
 #include <engine/texture.h>
 #include <game/enemy_grid.h>
-#include <fstream>
 #include <iostream>
-#include <filesystem>
 
 #include <game/state.h>
 #include <game/start_screen.h>
 #include <game/projectile.h>
+#include <game/resource.h>
 
 // Player start variables.
-constexpr float width       = 30;
-constexpr float start_pos_x = WINDOW_WIDTH / 2 - width / 2;
-constexpr float start_pos_y = WINDOW_HEIGHT / 8 * 7;
+constexpr float width       = 60;
+constexpr float height      = 30;
+constexpr float start_pos_x = WINDOW_WIDTH / 2.0f - width / 2;
+constexpr float start_pos_y = WINDOW_HEIGHT / 8.0f * 7;
 
-void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event, float delta_time);
+void main_game_loop(
+    SDLContext& ctx,
+    Game& game,
+    Resources resources,
+    SDL_Event& event,
+    float delta_time
+);
 void assert(bool is_true, const char* message);
 void assert_startup_state();
 
@@ -39,9 +43,32 @@ int main(int argc, char** argv) {
     initialize_sdl(&ctx, "Space Invaders", WINDOW_WIDTH, WINDOW_HEIGHT);
 
     TextureLoader texture_loader{ ctx.renderer };
-    SDL_Texture* enemy_birdie_texture{ texture_loader.load("assets/enemy_birdie.png") };
-    SDL_Texture* player_texture{ texture_loader.load("assets/player_bird.png") };
-    SDL_Texture* bullet_texture{ texture_loader.load("assets/bullet.png") };
+
+    const SDL_FRect enemy_texture_default = {
+        .x = 0,
+        .y = 0,
+        .w = 40,
+        .h = 32,
+    };
+
+    Resources resources = {
+        .player = {
+            texture_loader.load("assets/player.png"),
+            { .x = 0, .y = 0, .w = width, .h = height },
+        },
+        .red = {
+            texture_loader.load("assets/red.png"),
+            enemy_texture_default,
+        },
+        .yellow = {
+            texture_loader.load("assets/yellow.png"),
+            enemy_texture_default,
+        },
+        .green = {
+            texture_loader.load("assets/green.png"),
+            enemy_texture_default,
+        },
+    };
 
     Game game = {
         .player = {
@@ -49,30 +76,24 @@ int main(int argc, char** argv) {
                 .x = start_pos_x,
                 .y = start_pos_y,
                 .w = width,
-                .h = width,
+                .h = height,
             },
             .velocity = {
                 .x = 100,
                 .y = 0,
-           },
-           .animation{
-               .frame_amount{ 3 },
-               .frame{ 0 },
-               .texture{ player_texture },
-               .frame_body{
-                   .x{ 0 },
-                   .y{ 0 },
-                   .w{ 32 },
-                   .h{ 32 },
-               },
-           },
+            },
+            .texture = &resources.player,
         },
-        .enemy_grid  = create_enemy_grid(WINDOW_WIDTH, WINDOW_HEIGHT, "level_1", enemy_birdie_texture),
+        .enemy_grid = create_enemy_grid(
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT,
+            "level_1",
+            resources
+        ),
         .projectiles = {},
-        .bullet_texture = bullet_texture,
-        .running     = true,
-        .frame       {},
-        .state       = State::Start,
+        .running = true,
+        .frame = {},
+        .state = State::Start,
     };
 
     Uint64 last_time_ms{0};
@@ -96,7 +117,7 @@ int main(int argc, char** argv) {
             break;
         }
         case State::Game: {
-            main_game_loop(ctx, game, event, delta_time);
+            main_game_loop(ctx, game, resources, event, delta_time);
             break;
         }
         }
@@ -115,14 +136,22 @@ int main(int argc, char** argv) {
     }
 
     SDL_Log("Exiting Game.\n");
-    SDL_DestroyTexture(enemy_birdie_texture);
-    SDL_DestroyTexture(player_texture);
-    SDL_DestroyTexture(bullet_texture);
+
+    SDL_DestroyTexture(resources.player.texture);
+    SDL_DestroyTexture(resources.red.texture);
+    SDL_DestroyTexture(resources.green.texture);
+    SDL_DestroyTexture(resources.yellow.texture);
     cleanup(&ctx);
     return 0;
 }
 
-void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event, float delta_time) {
+void main_game_loop(
+    SDLContext& ctx,
+    Game& game,
+    Resources resources,
+    SDL_Event& event,
+    float delta_time
+) {
     while (SDL_PollEvent(&event)) {
         handle(&event, game, delta_time);
     }
@@ -139,7 +168,7 @@ void main_game_loop(SDLContext& ctx, Game& game, SDL_Event& event, float delta_t
 
     int w, h;
     SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
-    update_enemy_grid(game.enemy_grid, w, h, delta_time);
+    update_enemy_grid(game.enemy_grid, w, h, delta_time, game.projectiles);
 
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);

@@ -14,6 +14,8 @@
 #include <game/config.h>
 #include <game/timer.h>
 #include <game/animation.h>
+#include <game/projectile.h>
+#include <game/resource.h>
 
 using GruntGrid = std::array<Grunts, enemy_row_amount>;
 
@@ -23,9 +25,7 @@ struct EnemyGrid {
     SDL_FRect body;
     Direction direction;
     GruntGrid enemies;
-    std::array<SDL_FRect, body_amount> enemy_bodies;
     GameTimer timer;
-    Animation animation;
 
     void draw(SDL_Renderer* renderer);
 };
@@ -34,7 +34,7 @@ EnemyGrid create_enemy_grid(
     float world_width,
     float world_height,
     std::string file_path,
-    SDL_Texture* enemy_texture
+    Resources& resources
 );
 
-void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth, float delta_time);
+void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth, float delta_time, Projectiles& projectiles);

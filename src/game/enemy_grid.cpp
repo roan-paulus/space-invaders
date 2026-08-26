@@ -1,8 +1,8 @@
 #include "enemy_grid.h"
 
-#include <iostream>
 #include <string>
 #include <array>
+#include <vector>
 #include <cctype>
 
 #include <SDL3/SDL_log.h>
@@ -14,18 +14,19 @@
 #include <game/config.h>
 #include <game/timer.h>
 
-GruntGrid parse_grid_layout(std::string& content) {
+GruntGrid parse_grid_layout(std::string& content, Resources& resources) {
     GruntGrid grid {};
 
     // enemy_row_amount are also the amount of '|' which are not part of the array.
     if (content.length() - enemy_row_amount != enemy_col_amount * enemy_row_amount) {
-	SDL_LogError(0, "content.length = %i, is of the wrong size.", content.length());
+	SDL_LogError(0, "content.length = %zu, is of the wrong size.", content.length());
 	std::exit(1);
     }
 
     int row = 0;
     for (int i = 0; i < content.length(); ++i) {
 	char c = content[i];
+	Texture* texture { nullptr };
 	switch (c) {
 	case ' ': {
 	  break;
@@ -38,12 +39,30 @@ GruntGrid parse_grid_layout(std::string& content) {
 	}
 	default: {
 	    if (std::isdigit(c)) {
-		// TODO: use a different enemy template based on this number (digit c).
-		int hitpoints = 1; 
-		Grunt grunt = {
-		    .hitpoints = hitpoints,
-		    .body {},
+		switch (c) {
+		case '1': {
+		    texture = &resources.red;
+		    break;
+		}
+		case '2': {
+		    texture = &resources.green;
+		    break;
+		}
+		case '3': {
+		    texture = &resources.yellow;
+		    break;
+		}
+		default: {
+		    SDL_LogError(0, "Unknown enemy type");
+		}
+		}
+
+		int hitpoints = 1;
+		SDL_FRect body = {
+		    .x = 6
 		};
+		Grunt grunt { hitpoints, body, texture };
+
 		grid[row][i % enemy_col_amount] = grunt;
 	    }
 	}
@@ -52,21 +71,24 @@ GruntGrid parse_grid_layout(std::string& content) {
     return grid;
 }
 
+const float PADDING_X = 64;
+const float PADDING_Y = 64;
+
 EnemyGrid create_enemy_grid(
     float world_width,
     float world_height,
     std::string file_path,
-    SDL_Texture* enemy_texture
+    Resources& resources
 ) {
     GruntGrid grid = {};
 
     if (file_path.length() > 0) {
 	auto content = fs::read_to_string(file_path);
-	grid = parse_grid_layout(content);
+	grid = parse_grid_layout(content, resources);
     } else {
 	const unsigned int grunt_amount = 30;
 	for (unsigned int i = 0; i < grunt_amount; ++i) {
-	    grid[i / 32][i] = Grunt { 1 };
+	    grid[i / 32][i] = Grunt { 1, {}, nullptr };
 	}
     }
 
@@ -77,33 +99,81 @@ EnemyGrid create_enemy_grid(
 	.body = {
 	    .x = slice,
 	    .y = 0,
-	    .w = slice * (slice_amount - 2),
-	    .h = world_height / 2,
+	    .w = enemy_col_amount * 40 + PADDING_X,
+	    .h = enemy_row_amount * 32 + PADDING_Y,
 	},
 	.direction = Direction::right,
 	.enemies = grid,
 	.timer = { .length = 1, .timeout = true },
-	.animation = Animation{
-	    .frame_amount = 3,
-	    .frame = 0, 
-	    .texture = enemy_texture,
-	    .frame_body {
-		.x = 0,
-		.y = 0,
-		.w = 32,
-		.h = 32,
-	    },
-	},
     };
     return result;
 }
 
-void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth, float delta_time) {
+class Counter {
+    int count;
+
+public:
+    int limit;
+
+    Counter(int limit = 10, int start_count = 0)
+	: count{ start_count }
+	, limit{ limit }
+    {}
+
+    void tick() {
+	++count;
+    }
+
+    void reset() {
+	count = 0;
+    }
+
+    bool limit_reached() {
+	return count >= limit;
+    }
+
+    int get_count() {
+	return count;
+    }
+};
+
+void update_enemy_grid(
+    EnemyGrid& enemy_grid,
+    int window_width,
+    int window_heigth,
+    float delta_time,
+    Projectiles& projectiles
+) {
+    for (unsigned int i = 0; i < enemy_grid.enemies.size(); ++i) {
+	auto& enemies = enemy_grid.enemies[i];
+	for (unsigned int j = 0; j < enemies.size(); ++j) {
+	    auto& enemy = enemies[j];
+	    if (enemy.hitpoints == 0) {
+		continue;
+	    }
+	    for (auto& projectile: projectiles) {
+		if (enemy.has_collision(projectile)) {
+		    // Queue for deletion:
+		    projectile.out_of_bounds = true;
+		    --enemy.hitpoints;
+		}
+	    }
+	}
+    }
+
     if (!enemy_grid.timer.isTimeoutAndStep(delta_time)) {
 	return;
     }
 
-    enemy_grid.animation.next();
+    const int limit = 10;
+    static Counter counter { limit };
+
+    if (counter.limit_reached()) {
+	enemy_grid.timer.length -= 0.1;
+	counter.reset();
+	counter.limit += 1;
+    }
+    counter.tick();
 
     const bool touched_right_side_screen_boundary =
 	enemy_grid.body.x + enemy_grid.body.w >= window_width;
@@ -130,32 +200,39 @@ void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigt
 	enemy_grid.body.x += velocity.x;
 	break;
     }
+    case Direction::up:
+    case Direction::down:
+	SDL_LogError(0, "Grid is not supposed to change directions to up or down");
+        break;
     }
 
     float horizontal_chunk_size = enemy_grid.body.w / enemy_col_amount;
     float vertical_chunk_size = enemy_grid.body.h / enemy_row_amount;
 
-    unsigned int eb_i = 0;
+    float padding_x = PADDING_X / 11;
+    float padding_y = PADDING_Y / 11;
 
     for (unsigned int i = 0; i < enemy_grid.enemies.size(); ++i) {
 	auto& enemies = enemy_grid.enemies[i];
 	for (unsigned int j = 0; j < enemies.size(); ++j) {
 	    auto& enemy = enemies[j];
+
 	    if (enemy.hitpoints > 0) {
-		enemy_grid.enemy_bodies[eb_i] = {
-		    .x = enemy_grid.body.x + j * horizontal_chunk_size,
-		    .y = enemy_grid.body.y + i * vertical_chunk_size,
-		    .w = horizontal_chunk_size,
-		    .h = vertical_chunk_size,
+		enemy.body = {
+		    .x = enemy_grid.body.x + j * horizontal_chunk_size + j * padding_x,
+		    .y = enemy_grid.body.y + i * vertical_chunk_size + i * padding_y,
+		    .w = 40,
+		    .h = 32,
 		};
-		++eb_i;
 	    }
 	}
     }
 }
 
 void EnemyGrid::draw(SDL_Renderer* renderer) {
-    for (auto& enemy_body: enemy_bodies) {
-	animation.draw(renderer, &enemy_body);
+    for (auto& rows: enemies) {
+	for (auto& enemy: rows) {
+	    enemy.draw(renderer, enemy.texture->frame);
+	}
     }
 }

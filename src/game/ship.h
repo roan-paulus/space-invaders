@@ -7,14 +7,15 @@
 #include "window_constants.h"
 #include <engine/vec2.h>
 #include <game/animation.h>
+#include <game/texture.h>
 
 struct Ship {
     SDL_FRect body;
     Vec2 velocity;
-    Animation animation;
+    Texture* texture;
 
     void draw(SDL_Renderer* renderer) {
-        animation.draw(renderer, &body);
+        SDL_RenderTexture(renderer, texture->texture, &texture->frame, &body);
     }
 };
 
