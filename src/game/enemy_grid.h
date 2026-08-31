@@ -1,7 +1,5 @@
 #pragma once
 
-#include "enemy_grid.h"
-
 #include <array>
 #include <string>
 
@@ -36,5 +34,3 @@ EnemyGrid create_enemy_grid(
     std::string file_path,
     Resources& resources
 );
-
-void update_enemy_grid(EnemyGrid& enemy_grid, int window_width, int window_heigth, float delta_time, Projectiles& projectiles);

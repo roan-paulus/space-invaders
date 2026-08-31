@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <unistd.h>
+#include <algorithm>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
@@ -11,6 +12,7 @@
 
 #include "event/handle.h"
 #include "game/game.h"
+#include "game/update_enemy_grid.h"
 #include "window_constants.h"
 #include <engine/init.h>
 #include <engine/texture.h>
@@ -68,6 +70,13 @@ int main(int argc, char** argv) {
             texture_loader.load("assets/green.png"),
             enemy_texture_default,
         },
+        .explosion = {
+            4,
+            1,
+            texture_loader.load("assets/explosion.png"),
+            { .x = 0, .y = 0, .w = 64, .h = 64 },
+            0.07
+        },
     };
 
     Game game = {
@@ -94,6 +103,7 @@ int main(int argc, char** argv) {
         .running = true,
         .frame = {},
         .state = State::Start,
+        .animation_queue = {},
     };
 
     Uint64 last_time_ms{0};
@@ -141,6 +151,7 @@ int main(int argc, char** argv) {
     SDL_DestroyTexture(resources.red.texture);
     SDL_DestroyTexture(resources.green.texture);
     SDL_DestroyTexture(resources.yellow.texture);
+    SDL_DestroyTexture(resources.explosion.texture);
     cleanup(&ctx);
     return 0;
 }
@@ -168,7 +179,22 @@ void main_game_loop(
 
     int w, h;
     SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
-    update_enemy_grid(game.enemy_grid, w, h, delta_time, game.projectiles);
+    update_enemy_grid(game, w, h, delta_time, resources);
+
+    for (auto& obj : game.animation_queue) {
+        obj.animation.step(delta_time);
+        obj.animation.draw(ctx.renderer, &obj.location);
+    }
+
+    game.animation_queue.erase(
+        std::remove_if(
+            game.animation_queue.begin(), game.animation_queue.end(),
+            [](auto ao) {
+                return ao.animation.is_at_end();
+            }
+        ),
+        game.animation_queue.end()
+    );
 
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);

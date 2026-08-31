@@ -17,16 +17,6 @@ Projectile create_projectile(float x, float y) {
             .y = -256,
         },
         .out_of_bounds = false,
-        .animation{
-            .frame_amount = 1,
-            .frame = 0,
-            .frame_body{
-                .x = 0,
-                .y = 0,
-                .w = 32,
-                .h = 32,
-            },
-        },
     };
 }
 

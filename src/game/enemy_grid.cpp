@@ -1,13 +1,16 @@
 #include "enemy_grid.h"
+#include "game/animation.h"
+#include "update_enemy_grid.h"
 
 #include <string>
 #include <array>
-#include <vector>
 #include <cctype>
 
 #include <SDL3/SDL_log.h>
 #include <SDL3_image/SDL_image.h>
 
+#include "game/game.h"
+#include "game/resource.h"
 #include "grunt.h"
 #include <engine/io/reader.h>
 #include <engine/vec2.h>
@@ -138,21 +141,34 @@ public:
 };
 
 void update_enemy_grid(
-    EnemyGrid& enemy_grid,
+    Game& game,
     int window_width,
     int window_heigth,
     float delta_time,
-    Projectiles& projectiles
+    Resources& resources
 ) {
-    for (unsigned int i = 0; i < enemy_grid.enemies.size(); ++i) {
-	auto& enemies = enemy_grid.enemies[i];
+    for (unsigned int i = 0; i < game.enemy_grid.enemies.size(); ++i) {
+	auto& enemies = game.enemy_grid.enemies[i];
 	for (unsigned int j = 0; j < enemies.size(); ++j) {
 	    auto& enemy = enemies[j];
-	    if (enemy.hitpoints == 0) {
+	    // TODO: Remove size check
+	    if (enemy.hitpoints == 0 && enemy.enabled && game.animation_queue.size() == 0) {
+		enemy.enabled = false;
+		AnimationObject ao = {
+		    .animation = resources.explosion,
+		    .location = {
+			// Subtraction to get to optimal animation position.
+			enemy.body.x - 8,
+			enemy.body.y - 16,
+			64,
+			64,
+		    }
+		};
+		game.animation_queue.push_back(ao);
 		continue;
 	    }
-	    for (auto& projectile: projectiles) {
-		if (enemy.has_collision(projectile)) {
+	    for (auto& projectile: game.projectiles) {
+		if (enemy.hitpoints > 0 && enemy.has_collision(projectile)) {
 		    // Queue for deletion:
 		    projectile.out_of_bounds = true;
 		    --enemy.hitpoints;
@@ -161,7 +177,7 @@ void update_enemy_grid(
 	}
     }
 
-    if (!enemy_grid.timer.isTimeoutAndStep(delta_time)) {
+    if (!game.enemy_grid.timer.isTimeoutAndStep(delta_time)) {
 	return;
     }
 
@@ -169,14 +185,14 @@ void update_enemy_grid(
     static Counter counter { limit };
 
     if (counter.limit_reached()) {
-	enemy_grid.timer.length -= 0.1;
+	game.enemy_grid.timer.length -= 0.1;
 	counter.reset();
 	counter.limit += 1;
     }
     counter.tick();
 
     const bool touched_right_side_screen_boundary =
-	enemy_grid.body.x + enemy_grid.body.w >= window_width;
+	game.enemy_grid.body.x + game.enemy_grid.body.w >= window_width;
 
     Vec2 velocity = {
 	.x = 15,
@@ -184,20 +200,20 @@ void update_enemy_grid(
     };
 
     if (touched_right_side_screen_boundary) {
-	enemy_grid.direction = Direction::left;
-	enemy_grid.body.y += velocity.y;
-    } else if (enemy_grid.body.x <= 0) {
-	enemy_grid.direction = Direction::right;
-	enemy_grid.body.y += velocity.y;
+	game.enemy_grid.direction = Direction::left;
+	game.enemy_grid.body.y += velocity.y;
+    } else if (game.enemy_grid.body.x <= 0) {
+	game.enemy_grid.direction = Direction::right;
+	game.enemy_grid.body.y += velocity.y;
     }
 
-    switch (enemy_grid.direction) {
+    switch (game.enemy_grid.direction) {
     case Direction::left: {
-	enemy_grid.body.x -= velocity.x;
+	game.enemy_grid.body.x -= velocity.x;
 	break;
     }
     case Direction::right: {
-	enemy_grid.body.x += velocity.x;
+	game.enemy_grid.body.x += velocity.x;
 	break;
     }
     case Direction::up:
@@ -206,21 +222,21 @@ void update_enemy_grid(
         break;
     }
 
-    float horizontal_chunk_size = enemy_grid.body.w / enemy_col_amount;
-    float vertical_chunk_size = enemy_grid.body.h / enemy_row_amount;
+    float horizontal_chunk_size = game.enemy_grid.body.w / enemy_col_amount;
+    float vertical_chunk_size = game.enemy_grid.body.h / enemy_row_amount;
 
     float padding_x = PADDING_X / 11;
     float padding_y = PADDING_Y / 11;
 
-    for (unsigned int i = 0; i < enemy_grid.enemies.size(); ++i) {
-	auto& enemies = enemy_grid.enemies[i];
+    for (unsigned int i = 0; i < game.enemy_grid.enemies.size(); ++i) {
+	auto& enemies = game.enemy_grid.enemies[i];
 	for (unsigned int j = 0; j < enemies.size(); ++j) {
 	    auto& enemy = enemies[j];
 
 	    if (enemy.hitpoints > 0) {
 		enemy.body = {
-		    .x = enemy_grid.body.x + j * horizontal_chunk_size + j * padding_x,
-		    .y = enemy_grid.body.y + i * vertical_chunk_size + i * padding_y,
+		    .x = game.enemy_grid.body.x + j * horizontal_chunk_size + j * padding_x,
+		    .y = game.enemy_grid.body.y + i * vertical_chunk_size + i * padding_y,
 		    .w = 40,
 		    .h = 32,
 		};
@@ -232,7 +248,9 @@ void update_enemy_grid(
 void EnemyGrid::draw(SDL_Renderer* renderer) {
     for (auto& rows: enemies) {
 	for (auto& enemy: rows) {
-	    enemy.draw(renderer, enemy.texture->frame);
+	    if (enemy.hitpoints > 0) {
+		enemy.draw(renderer, enemy.texture->frame);
+	    }
 	}
     }
 }

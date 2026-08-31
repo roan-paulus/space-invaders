@@ -4,16 +4,14 @@
 #include <vector>
 
 #include <SDL3/SDL_rect.h>
+#include "SDL3/SDL_render.h"
 #include <engine/vec2.h>
 #include <engine/physics/direction.h>
-
-#include "game/animation.h"
 
 struct Projectile {
     SDL_FRect body;
     Vec2 velocity;
     bool out_of_bounds{ false };
-    Animation animation;
 };
 
 using Projectiles = std::vector<Projectile>;

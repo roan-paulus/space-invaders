@@ -13,11 +13,13 @@ struct Grunt {
     int hitpoints;
     SDL_FRect body;
     Texture* texture;
+    bool enabled;
 
     Grunt()
         : hitpoints{ 0 }
         , body{}
         , texture{ nullptr }
+        , enabled{ true }
     {}
     Grunt(int hitpoints, SDL_FRect body, Texture* texture)
         : hitpoints{hitpoints}

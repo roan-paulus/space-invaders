@@ -1,8 +1,6 @@
 #ifndef GAME_TIMER_H
 #define GAME_TIMER_H
 
-#include <iostream>
-
 struct GameTimer {
     float length;
     float time{ 0 };
