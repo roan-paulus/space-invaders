@@ -31,6 +31,7 @@ struct EnemyGrid {
 EnemyGrid create_enemy_grid(
     float world_width,
     float world_height,
+    float x,
     std::string file_path,
     Resources& resources
 );

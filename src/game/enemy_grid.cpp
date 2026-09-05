@@ -80,6 +80,7 @@ const float PADDING_Y = 64;
 EnemyGrid create_enemy_grid(
     float world_width,
     float world_height,
+    float x,
     std::string file_path,
     Resources& resources
 ) {
@@ -96,7 +97,7 @@ EnemyGrid create_enemy_grid(
     }
 
     const float slice_amount = 9;
-    float slice = world_width / slice_amount;
+    float slice = x + world_width / slice_amount;
 
     EnemyGrid result{
 	.body = {
@@ -153,6 +154,7 @@ void update_enemy_grid(
 	    auto& enemy = enemies[j];
 	    // TODO: Remove size check
 	    if (enemy.hitpoints == 0 && enemy.enabled && game.animation_queue.size() == 0) {
+		++game.score;
 		enemy.enabled = false;
 		AnimationObject ao = {
 		    .animation = resources.explosion,
