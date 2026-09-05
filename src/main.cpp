@@ -31,12 +31,6 @@ constexpr float height      = 30;
 constexpr float start_pos_x = WINDOW_WIDTH / 2.0f - width / 2;
 constexpr float start_pos_y = WINDOW_HEIGHT / 8.0f * 7;
 
-constexpr int   ui_areas    = 2;
-constexpr int   game_areas  = 1;
-constexpr int   total_areas = ui_areas + game_areas;
-constexpr float game_area_x = WINDOW_WIDTH / 5.0f * total_areas;
-constexpr float game_area_y = WINDOW_HEIGHT;
-
 void main_game_loop(
     SDLContext& ctx,
     Game& game,
@@ -47,19 +41,18 @@ void main_game_loop(
 void assert(bool is_true, const char* message);
 void assert_startup_state();
 
-// TODO: BIND EVERY GAME OBJECT TO distribute_window_frame.
 void disribute_window_frame(SDL_FRect& frame) {
-    // Represented as in 0.00 to 1.
-    static float used_width = 0;
+    static float used_width_px = 0;
 
-    frame.x = WINDOW_WIDTH / used_width;
-    frame.w = WINDOW_WIDTH / frame.w;
+    frame.x = used_width_px;
+    frame.y = 0;
+    frame.w = WINDOW_WIDTH * frame.w;
     frame.h = WINDOW_HEIGHT;
 
-    used_width += frame.w;
+    used_width_px += frame.w;
 
     // Height is not supported.
-    if (used_width <= 1.0f && frame.h != 0) {
+    if (used_width_px <= 1.0f && frame.h != 0) {
         SDL_LogError(0, "Elements cannot be distributed");
         std::exit(1);
     }
@@ -105,9 +98,9 @@ int main(int argc, char** argv) {
     };
 
     // Input '.w' is used as a percentage of the full screen width.
-    SDL_FRect ui_left_rect { .w = 0.2 };
-    SDL_FRect game_frame { .w = 0.6 };
-    SDL_FRect ui_right_rect { .w = 0.2 };
+    SDL_FRect ui_left_rect  { .w = 0.15 };
+    SDL_FRect game_frame    { .w = 0.7 };
+    SDL_FRect ui_right_rect { .w = 0.15 };
     disribute_window_frame(ui_left_rect);
     disribute_window_frame(game_frame);
     disribute_window_frame(ui_right_rect);
@@ -128,7 +121,7 @@ int main(int argc, char** argv) {
         },
         .enemy_grid = create_enemy_grid(
             game_frame.w,
-            WINDOW_HEIGHT,
+            game_frame.h,
             game_frame.x,
             "level_1",
             resources
@@ -138,6 +131,7 @@ int main(int argc, char** argv) {
         .state = State::Start,
         .score = 0,
         .animation_queue = {},
+        .game_area = game_frame,
         .left_ui = {
             { WidgetType::Score_1, WidgetType::Hiscore, WidgetType::Score_2, },
             Position::Left,

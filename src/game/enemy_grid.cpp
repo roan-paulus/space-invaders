@@ -194,7 +194,7 @@ void update_enemy_grid(
     counter.tick();
 
     const bool touched_right_side_screen_boundary =
-	game.enemy_grid.body.x + game.enemy_grid.body.w >= window_width;
+	game.enemy_grid.body.x + game.enemy_grid.body.w >= game.game_area.x + game.game_area.w;
 
     Vec2 velocity = {
 	.x = 15,
@@ -204,7 +204,7 @@ void update_enemy_grid(
     if (touched_right_side_screen_boundary) {
 	game.enemy_grid.direction = Direction::left;
 	game.enemy_grid.body.y += velocity.y;
-    } else if (game.enemy_grid.body.x <= 0) {
+    } else if (game.enemy_grid.body.x <= game.game_area.x) {
 	game.enemy_grid.direction = Direction::right;
 	game.enemy_grid.body.y += velocity.y;
     }
