@@ -19,7 +19,7 @@ struct Grunt {
         : hitpoints{ 0 }
         , body{}
         , texture{ nullptr }
-        , enabled{ true }
+        , enabled{ false }
     {}
     Grunt(int hitpoints, SDL_FRect body, Texture* texture)
         : hitpoints{hitpoints}

@@ -18,6 +18,7 @@ struct Game {
     EnemyGrid enemy_grid;
     std::vector<Projectile> projectiles;
     bool running;
+    int level;
     State state;
     int score;
     std::vector<AnimationObject> animation_queue;

@@ -96,12 +96,9 @@ EnemyGrid create_enemy_grid(
 	}
     }
 
-    const float slice_amount = 9;
-    float slice = x + world_width / slice_amount;
-
     EnemyGrid result{
 	.body = {
-	    .x = slice,
+	    .x = x,
 	    .y = 0,
 	    .w = enemy_col_amount * 40 + PADDING_X,
 	    .h = enemy_row_amount * 32 + PADDING_Y,
@@ -143,8 +140,6 @@ public:
 
 void update_enemy_grid(
     Game& game,
-    int window_width,
-    int window_heigth,
     float delta_time,
     Resources& resources
 ) {

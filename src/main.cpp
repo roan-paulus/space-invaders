@@ -22,6 +22,7 @@
 
 #include <game/state.h>
 #include <game/start_screen.h>
+#include <game/win_screen.h>
 #include <game/projectile.h>
 #include <game/resource.h>
 
@@ -128,7 +129,8 @@ int main(int argc, char** argv) {
         ),
         .projectiles = {},
         .running = true,
-        .state = State::Start,
+        .level = 1,
+        .state = State::Game,
         .score = 0,
         .animation_queue = {},
         .game_area = game_frame,
@@ -151,6 +153,7 @@ int main(int argc, char** argv) {
         .selection = Selection::Start,
     };
     SDL_Event event;
+    WinScreen::Selection winscreen_selection = WinScreen::Selection::Continue;
 
     while (game.running) {
         current_time_ms = SDL_GetTicks();
@@ -162,6 +165,10 @@ int main(int argc, char** argv) {
         switch (game.state) {
         case State::Start: {
             start_screen(ctx, game, event, start_screen_state);
+            break;
+        }
+        case State::Win: {
+            WinScreen::win_screen(ctx, game, event, winscreen_selection);
             break;
         }
         case State::Game: {
@@ -215,9 +222,7 @@ void main_game_loop(
 
     update_projectiles(game.projectiles, delta_time);
 
-    int w, h;
-    SDL_GetWindowSizeInPixels(ctx.window, &w, &h);
-    update_enemy_grid(game, w, h, delta_time, resources);
+    update_enemy_grid(game, delta_time, resources);
 
     for (auto& obj : game.animation_queue) {
         obj.animation.step(delta_time);
@@ -239,6 +244,24 @@ void main_game_loop(
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);
+
+    // Winning condition check:
+    bool found_one_alive = false;
+    for (auto& row : game.enemy_grid.enemies) {
+        for (auto& enemy : row) {
+            if (enemy.hitpoints > 0) {
+                found_one_alive = true;
+                goto end_enemy_check;
+            }
+        }
+    }
+end_enemy_check:
+    if (!found_one_alive) {
+        ++game.level;
+        game.state = State::Win;
+        game.enemy_grid = create_enemy_grid(game.game_area.w, game.game_area.h, game.game_area.x, "level_" + std::to_string(game.level), resources);
+    }
+    return;
 }
 
 void assert(bool is_true, const char* message) {
