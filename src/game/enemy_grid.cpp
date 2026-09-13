@@ -1,7 +1,9 @@
 #include "enemy_grid.h"
 #include "game/animation.h"
+#include "game/collision.h"
 #include "update_enemy_grid.h"
 
+#include <random>
 #include <string>
 #include <array>
 #include <cctype>
@@ -105,8 +107,19 @@ EnemyGrid create_enemy_grid(
 	},
 	.direction = Direction::right,
 	.enemies = grid,
-	.timer = { .length = 1, .timeout = true },
+	.bottom_edge_grunts = {},
+	.movement_timer = { .length = 1, .timeout = true },
+	.projectile_timer = { .length = 2 },
     };
+
+    for (int i = 0; i < result.enemies[0].size(); ++i) {
+	for (int j = result.enemies.size() - 1; j >= 0; --j) {
+	    auto& enemy = result.enemies[j][i];
+	    if (enemy.enabled) {
+		result.bottom_edge_grunts.push_back(&enemy);
+	    }
+	}
+    }
     return result;
 }
 
@@ -165,7 +178,7 @@ void update_enemy_grid(
 		continue;
 	    }
 	    for (auto& projectile: game.projectiles) {
-		if (enemy.hitpoints > 0 && enemy.has_collision(projectile)) {
+		if (enemy.hitpoints > 0 && has_collision(enemy.body, projectile.body)) {
 		    // Queue for deletion:
 		    projectile.out_of_bounds = true;
 		    --enemy.hitpoints;
@@ -174,7 +187,25 @@ void update_enemy_grid(
 	}
     }
 
-    if (!game.enemy_grid.timer.isTimeoutAndStep(delta_time)) {
+    if (game.enemy_grid.projectile_timer.isTimeoutAndStep(delta_time)) {
+	std::uniform_int_distribution generate_random_index
+	    { 0, (int)game.enemy_grid.bottom_edge_grunts.size() - 1 };
+
+	int i = generate_random_index(game.enemy_grid.rd);
+
+	if (i >= game.enemy_grid.bottom_edge_grunts.size()) {
+	    SDL_LogError(0, "i = %i, is too big! if zero, then bottom_edge_grunts empty", i);
+	} else {
+	    Grunt* enemy = game.enemy_grid.bottom_edge_grunts[i];
+
+	    game.projectiles.push_back({
+		.body = { .x = enemy->body.x + enemy->body.w / 2, .y = enemy->body.y + enemy->body.h, .w = 5, .h = 30 },
+		.velocity = { 0, 50 }
+	    });
+	}
+    }
+
+    if (!game.enemy_grid.movement_timer.isTimeoutAndStep(delta_time)) {
 	return;
     }
 
@@ -182,7 +213,7 @@ void update_enemy_grid(
     static Counter counter { limit };
 
     if (counter.limit_reached()) {
-	game.enemy_grid.timer.length -= 0.1;
+	game.enemy_grid.movement_timer.length -= 0.1;
 	counter.reset();
 	counter.limit += 1;
     }

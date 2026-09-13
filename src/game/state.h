@@ -5,6 +5,7 @@ enum class State {
     Start,
     Game,
     Win,
+    Dead,
 };
 
 #endif

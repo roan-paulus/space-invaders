@@ -11,6 +11,8 @@
 #include <SDL3_image/SDL_image.h>
 
 #include "event/handle.h"
+#include "game/collision.h"
+#include "game/death_screen.h"
 #include "game/game.h"
 #include "game/ui.h"
 #include "game/update_enemy_grid.h"
@@ -154,6 +156,7 @@ int main(int argc, char** argv) {
     };
     SDL_Event event;
     WinScreen::Selection winscreen_selection = WinScreen::Selection::Continue;
+    auto death_screen_selection = DeathScreen::Selection::Continue;
 
     while (game.running) {
         current_time_ms = SDL_GetTicks();
@@ -173,6 +176,10 @@ int main(int argc, char** argv) {
         }
         case State::Game: {
             main_game_loop(ctx, game, resources, event, delta_time);
+            break;
+        }
+        case State::Dead: {
+            DeathScreen::show(ctx, game, resources, event, death_screen_selection);
             break;
         }
         }
@@ -218,6 +225,11 @@ void main_game_loop(
     }
     if (state[SDL_SCANCODE_RIGHT]) {
         game.player.body.x += game.player.velocity.x * delta_time;
+    }
+    for (const auto& projectile : game.projectiles) {
+        if (has_collision(game.player.body, projectile.body)) {
+            game.state = State::Dead;
+        }
     }
 
     update_projectiles(game.projectiles, delta_time);

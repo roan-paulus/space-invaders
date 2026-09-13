@@ -1,7 +1,10 @@
 #pragma once
 
 #include <array>
+#include <vector>
 #include <string>
+#include <random>
+#include <chrono>
 
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
@@ -23,7 +26,14 @@ struct EnemyGrid {
     SDL_FRect body;
     Direction direction;
     GruntGrid enemies;
-    GameTimer timer;
+    std::vector<Grunt*> bottom_edge_grunts;
+    GameTimer movement_timer;
+    GameTimer projectile_timer;
+    std::mt19937 rd {
+        static_cast<std::mt19937::result_type>(
+            std::chrono::steady_clock::now().time_since_epoch().count()
+        )
+    };
 
     void draw(SDL_Renderer* renderer);
 };
