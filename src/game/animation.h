@@ -29,7 +29,7 @@ public:
     {}
 
     void step(float delta_time) {
-        if (timer.isTimeoutAndStep(delta_time)) {
+        if (timer.is_timeout_and_step(delta_time)) {
             if (frame_col >= cols) {
                 if (frame_row >= rows) {
                     frame_col = 0;

@@ -19,6 +19,10 @@
 #include <game/config.h>
 #include <game/timer.h>
 
+void add_enemy_projectile(Game& game);
+void collect_pewpew_enemies(EnemyGrid& enemy_grid);
+void remove_all_disabled(std::vector<Grunt*> bottom_edge_grunts);
+
 GruntGrid parse_grid_layout(std::string& content, Resources& resources) {
     GruntGrid grid {};
 
@@ -111,16 +115,25 @@ EnemyGrid create_enemy_grid(
 	.movement_timer = { .length = 1, .timeout = true },
 	.projectile_timer = { .length = 2 },
     };
+    collect_pewpew_enemies(result);
 
-    for (int i = 0; i < result.enemies[0].size(); ++i) {
-	for (int j = result.enemies.size() - 1; j >= 0; --j) {
-	    auto& enemy = result.enemies[j][i];
+    return result;
+}
+
+void collect_pewpew_enemies(EnemyGrid& enemy_grid) {
+    auto column_size = enemy_grid.enemies[0].size();
+
+    for (int col = 0; col < column_size; ++col) {
+	auto row_size = enemy_grid.enemies.size();
+
+	for (int row = row_size - 1; row >= 0; --row) {
+	    auto& enemy = enemy_grid.enemies[row][col];
 	    if (enemy.enabled) {
-		result.bottom_edge_grunts.push_back(&enemy);
+		enemy_grid.bottom_edge_grunts.push_back(&enemy);
+		break;
 	    }
 	}
     }
-    return result;
 }
 
 class Counter {
@@ -175,6 +188,9 @@ void update_enemy_grid(
 		    }
 		};
 		game.animation_queue.push_back(ao);
+
+		game.enemy_grid.bottom_edge_grunts.clear();
+		collect_pewpew_enemies(game.enemy_grid);
 		continue;
 	    }
 	    for (auto& projectile: game.projectiles) {
@@ -187,25 +203,11 @@ void update_enemy_grid(
 	}
     }
 
-    if (game.enemy_grid.projectile_timer.isTimeoutAndStep(delta_time)) {
-	std::uniform_int_distribution generate_random_index
-	    { 0, (int)game.enemy_grid.bottom_edge_grunts.size() - 1 };
-
-	int i = generate_random_index(game.enemy_grid.rd);
-
-	if (i >= game.enemy_grid.bottom_edge_grunts.size()) {
-	    SDL_LogError(0, "i = %i, is too big! if zero, then bottom_edge_grunts empty", i);
-	} else {
-	    Grunt* enemy = game.enemy_grid.bottom_edge_grunts[i];
-
-	    game.projectiles.push_back({
-		.body = { .x = enemy->body.x + enemy->body.w / 2, .y = enemy->body.y + enemy->body.h, .w = 5, .h = 30 },
-		.velocity = { 0, 50 }
-	    });
-	}
+    if (game.enemy_grid.projectile_timer.is_timeout_and_step(delta_time)) {
+	add_enemy_projectile(game);
     }
 
-    if (!game.enemy_grid.movement_timer.isTimeoutAndStep(delta_time)) {
+    if (!game.enemy_grid.movement_timer.is_timeout_and_step(delta_time)) {
 	return;
     }
 
@@ -251,7 +253,7 @@ void update_enemy_grid(
     }
 
     float horizontal_chunk_size = game.enemy_grid.body.w / enemy_col_amount;
-    float vertical_chunk_size = game.enemy_grid.body.h / enemy_row_amount;
+    float vertical_chunk_size   = game.enemy_grid.body.h / enemy_row_amount;
 
     float padding_x = PADDING_X / 11;
     float padding_y = PADDING_Y / 11;
@@ -270,6 +272,24 @@ void update_enemy_grid(
 		};
 	    }
 	}
+    }
+}
+
+void add_enemy_projectile(Game& game) {
+    std::uniform_int_distribution generate_random_index
+	{ 0, (int)game.enemy_grid.bottom_edge_grunts.size() - 1 };
+
+    int i = generate_random_index(game.enemy_grid.rd);
+
+    if (i >= game.enemy_grid.bottom_edge_grunts.size()) {
+	SDL_LogError(0, "i = %i, is too big! if zero, then bottom_edge_grunts empty", i);
+    } else {
+	Grunt* enemy = game.enemy_grid.bottom_edge_grunts[i];
+
+	game.projectiles.push_back({
+	    .body = { .x = enemy->body.x + enemy->body.w / 2, .y = enemy->body.y + enemy->body.h, .w = 5, .h = 30 },
+	    .velocity = { 0, 50 }
+	});
     }
 }
 

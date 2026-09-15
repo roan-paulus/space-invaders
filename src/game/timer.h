@@ -15,7 +15,7 @@ struct GameTimer {
         }
     }
 
-    bool isTimeoutAndStep(float delta_time) {
+    bool is_timeout_and_step(float delta_time) {
         step(delta_time);
         if (timeout) {
             timeout = false;

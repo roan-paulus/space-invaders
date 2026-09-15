@@ -32,6 +32,7 @@ void show(SDLContext& ctx, Game& game, Resources& resources, SDL_Event& event, D
                         "level_1",
                         resources
                     );
+                    game.projectiles = {};
                     break;
                 }
 		case DeathScreen::Selection::Quit: {
