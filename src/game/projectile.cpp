@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <SDL3/SDL_render.h>
+
 #include <game/enemy_grid.h>
 
 Projectile create_projectile(float x, float y) {
@@ -42,8 +44,9 @@ void update_projectiles(Projectiles& projectiles, float delta_time) {
 }
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer) {
-    for (auto proj : projectiles) {
+    for (auto& proj : projectiles) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &proj.body);
         SDL_RenderRect(renderer, &proj.body);
     }
 }
