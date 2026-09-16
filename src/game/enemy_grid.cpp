@@ -1,6 +1,7 @@
 #include "enemy_grid.h"
 #include "game/animation.h"
 #include "game/collision.h"
+#include "game/projectile.h"
 #include "update_enemy_grid.h"
 
 #include <random>
@@ -194,7 +195,7 @@ void update_enemy_grid(
 		continue;
 	    }
 	    for (auto& projectile: game.projectiles) {
-		if (enemy.hitpoints > 0 && has_collision(enemy.body, projectile.body)) {
+		if (projectile.owner != ProjectileOwner::Enemy && enemy.hitpoints > 0 && has_collision(enemy.body, projectile.body)) {
 		    // Queue for deletion:
 		    projectile.out_of_bounds = true;
 		    --enemy.hitpoints;
@@ -288,7 +289,9 @@ void add_enemy_projectile(Game& game) {
 
 	game.projectiles.push_back({
 	    .body = { .x = enemy->body.x + enemy->body.w / 2, .y = enemy->body.y + enemy->body.h, .w = 5, .h = 30 },
-	    .velocity = { 0, 50 }
+	    .velocity = { 0, 50 },
+	    .out_of_bounds = false,
+	    .owner = ProjectileOwner::Enemy
 	});
     }
 }

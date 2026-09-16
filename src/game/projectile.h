@@ -8,15 +8,21 @@
 #include <engine/vec2.h>
 #include <engine/physics/direction.h>
 
+enum class ProjectileOwner {
+    Player,
+    Enemy,
+};
+
 struct Projectile {
     SDL_FRect body;
     Vec2 velocity;
     bool out_of_bounds{ false };
+    ProjectileOwner owner;
 };
 
 using Projectiles = std::vector<Projectile>;
 
-Projectile create_projectile(float x, float y);
+Projectile create_projectile(float x, float y, ProjectileOwner owner);
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer);
 

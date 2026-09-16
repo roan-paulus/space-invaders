@@ -6,7 +6,7 @@
 
 #include <game/enemy_grid.h>
 
-Projectile create_projectile(float x, float y) {
+Projectile create_projectile(float x, float y, ProjectileOwner owner) {
     return {
         .body = {
             .x = x,
@@ -19,6 +19,7 @@ Projectile create_projectile(float x, float y) {
             .y = -256,
         },
         .out_of_bounds = false,
+        .owner = owner,
     };
 }
 
