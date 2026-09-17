@@ -215,7 +215,8 @@ void update_enemy_grid(
     const int limit = 10;
     static Counter counter { limit };
 
-    if (counter.limit_reached()) {
+    const float LOWEST_GRID_TIMER_LENGTH = 0.1;
+    if (game.enemy_grid.movement_timer.length > LOWEST_GRID_TIMER_LENGTH && counter.limit_reached()) {
 	game.enemy_grid.movement_timer.length -= 0.1;
 	counter.reset();
 	counter.limit += 1;
