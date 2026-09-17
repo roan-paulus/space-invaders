@@ -289,7 +289,7 @@ void add_enemy_projectile(Game& game) {
 
 	game.projectiles.push_back({
 	    .body = { .x = enemy->body.x + enemy->body.w / 2, .y = enemy->body.y + enemy->body.h, .w = 5, .h = 30 },
-	    .velocity = { 0, 50 },
+	    .velocity = { 0, 170 },
 	    .out_of_bounds = false,
 	    .owner = ProjectileOwner::Enemy
 	});
