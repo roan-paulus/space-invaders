@@ -6,13 +6,13 @@
 
 #include <game/enemy_grid.h>
 
-Projectile create_projectile(float x, float y, ProjectileOwner owner) {
+Projectile create_projectile(float x, float y, ProjectileOwner owner, float w, float h) {
     return {
         .body = {
             .x = x,
             .y = y,
-            .w = 10,
-            .h = 10,
+            .w = w,
+            .h = h,
         },
         .velocity = {
             .x = 0,

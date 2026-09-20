@@ -22,7 +22,7 @@ struct Projectile {
 
 using Projectiles = std::vector<Projectile>;
 
-Projectile create_projectile(float x, float y, ProjectileOwner owner);
+Projectile create_projectile(float x, float y, ProjectileOwner owner, float w = 10, float h = 10);
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer);
 
