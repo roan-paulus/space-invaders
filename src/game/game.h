@@ -1,7 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <cstdlib>
 #include <vector>
 #include <SDL3/SDL_rect.h>
 
@@ -12,9 +11,11 @@
 #include <game/resource.h>
 #include <game/animation.h>
 #include <game/ui.h>
+#include <game/structure.h>
 
 struct Game {
     Ship player;
+    std::vector<Structure> structures;
     EnemyGrid enemy_grid;
     std::vector<Projectile> projectiles;
     bool running;

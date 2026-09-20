@@ -9,10 +9,12 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3_image/SDL_image.h>
 
+#include "SDL3/SDL_rect.h"
 #include "event/handle.h"
 #include "game/collision.h"
 #include "game/death_screen.h"
 #include "game/game.h"
+#include "game/structure.h"
 #include "game/ui.h"
 #include "game/update_enemy_grid.h"
 #include "window_constants.h"
@@ -58,6 +60,25 @@ void disribute_window_frame(SDL_FRect& frame) {
         SDL_LogError(0, "Elements cannot be distributed");
         std::exit(1);
     }
+}
+
+std::vector<Structure> initialize_structures(SDL_FRect& game_frame) {
+    std::vector<Structure> structures{};
+    const float amount = 4;
+
+    for (int i{ 0 }; i < amount; ++i) {
+        float x = game_frame.w / amount * i;
+        structures.push_back(Structure{
+            game_frame,
+            {
+                .x = x + 52,  // TODO: +52 is added by measuring by eye.
+                .y = 400,
+                .w = 60,
+                .h = 50,
+            }
+        });
+    }
+    return structures;
 }
 
 int main(int argc, char** argv) {
@@ -121,6 +142,7 @@ int main(int argc, char** argv) {
             },
             .texture = &resources.player,
         },
+        .structures = initialize_structures(game_frame),
         .enemy_grid = create_enemy_grid(
             game_frame.w,
             game_frame.h,
@@ -162,6 +184,7 @@ int main(int argc, char** argv) {
         float delta_time{ (current_time_ms - last_time_ms) / 1000.0f };
         last_time_ms = current_time_ms;
 
+        SDL_SetRenderDrawColor(ctx.renderer, 0, 0, 0, 0);
         SDL_RenderClear(ctx.renderer);
 
         switch (game.state) {
@@ -183,7 +206,6 @@ int main(int argc, char** argv) {
         }
         }
 
-        SDL_SetRenderDrawColor(ctx.renderer, 0, 0, 0, 0);
         SDL_RenderPresent(ctx.renderer);
 
         Uint64 loop_duration_ms{ SDL_GetTicks() - current_time_ms };
@@ -225,9 +247,16 @@ void main_game_loop(
     if (state[SDL_SCANCODE_RIGHT]) {
         game.player.body.x += game.player.velocity.x * delta_time;
     }
-    for (const auto& projectile : game.projectiles) {
+    for (auto& projectile : game.projectiles) {
         if (has_collision(game.player.body, projectile.body)) {
             game.state = State::Dead;
+        } else if (has_collision(projectile.body, game.structures)) {
+            if (projectile.owner == ProjectileOwner::Player) {
+                projectile.out_of_bounds = true;
+            } else {
+                projectile.out_of_bounds = true;
+                // TODO: And also handle the structure getting damaged.
+            }
         }
     }
 
@@ -255,6 +284,7 @@ void main_game_loop(
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);
+    draw_all_structures(ctx.renderer, game.structures);
 
     // Winning condition check:
     bool found_one_alive = false;

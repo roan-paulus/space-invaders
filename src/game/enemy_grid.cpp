@@ -1,7 +1,4 @@
 #include "enemy_grid.h"
-#include "game/animation.h"
-#include "game/collision.h"
-#include "game/projectile.h"
 #include "update_enemy_grid.h"
 
 #include <random>
@@ -12,13 +9,16 @@
 #include <SDL3/SDL_log.h>
 #include <SDL3_image/SDL_image.h>
 
-#include "game/game.h"
-#include "game/resource.h"
-#include "grunt.h"
+#include <game/game.h>
+#include <game/resource.h>
+#include <game/grunt.h>
 #include <engine/io/reader.h>
 #include <engine/vec2.h>
 #include <game/config.h>
 #include <game/timer.h>
+#include <game/animation.h>
+#include <game/collision.h>
+#include <game/projectile.h>
 
 void add_enemy_projectile(Game& game);
 void collect_pewpew_enemies(EnemyGrid& enemy_grid);

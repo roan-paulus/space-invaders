@@ -1,0 +1,23 @@
+#ifndef STRUCTURE_H
+#define STRUCTURE_H
+
+#include <vector>
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+
+class Structure {
+    // TODO: multiple parts and render crumbling of it.
+    int hitpoints;
+
+public:
+    SDL_FRect body;
+
+    Structure(SDL_FRect& game_frame, SDL_FRect body);
+
+    void draw(SDL_Renderer* renderer);
+};
+
+void draw_all_structures(SDL_Renderer* renderer, std::vector<Structure>& structures);
+
+#endif
