@@ -8,6 +8,6 @@
 #include "game/structure.h"
 
 bool has_collision(SDL_FRect& a, SDL_FRect& b);
-bool has_collision(SDL_FRect& a, std::vector<Structure>& structures);
+bool has_collision_update_part(SDL_FRect& a, std::vector<Structure>& structures);
 
 #endif

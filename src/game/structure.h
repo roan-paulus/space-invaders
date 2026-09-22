@@ -5,6 +5,12 @@
 
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_rect.h>
+
+struct Part {
+    SDL_FRect body;
+    int hitpoints;
+};
 
 class Structure {
     // TODO: multiple parts and render crumbling of it.
@@ -12,6 +18,7 @@ class Structure {
 
 public:
     SDL_FRect body;
+    std::vector<Part> parts;
 
     Structure(SDL_FRect& game_frame, SDL_FRect body);
 

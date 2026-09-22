@@ -71,7 +71,7 @@ std::vector<Structure> initialize_structures(SDL_FRect& game_frame) {
         structures.push_back(Structure{
             game_frame,
             {
-                .x = x + 52,  // TODO: +52 is added by measuring by eye.
+                .x = x + 52,  // TODO: +52 is measured by eye.
                 .y = 400,
                 .w = 60,
                 .h = 50,
@@ -250,12 +250,11 @@ void main_game_loop(
     for (auto& projectile : game.projectiles) {
         if (has_collision(game.player.body, projectile.body)) {
             game.state = State::Dead;
-        } else if (has_collision(projectile.body, game.structures)) {
+        } else if (has_collision_update_part(projectile.body, game.structures)) {
             if (projectile.owner == ProjectileOwner::Player) {
                 projectile.out_of_bounds = true;
             } else {
                 projectile.out_of_bounds = true;
-                // TODO: And also handle the structure getting damaged.
             }
         }
     }
