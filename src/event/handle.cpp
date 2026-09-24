@@ -2,7 +2,6 @@
 
 #include <SDL3/SDL_keyboard.h>
 
-#include "game/projectile.h"
 #include <game/ship.h>
 
 void handle_key_down(SDL_Scancode scancode, Game& game, float delta_time) {
@@ -12,13 +11,10 @@ void handle_key_down(SDL_Scancode scancode, Game& game, float delta_time) {
         break;
     }
     case SDL_SCANCODE_SPACE: {
-        auto& player = game.player;
-        Projectile projectile = create_projectile(player.body.x, player.body.y, ProjectileOwner::Player, 5, 30);
-        // Center the projectile relative to the player size.
-        projectile.body.x = (projectile.body.x + player.body.w / 2) - projectile.body.w / 2;
-        // Spawn above the player.
-        projectile.body.y -= projectile.body.h;
-        game.projectiles.push_back(projectile);
+        if (game.player.shooting) {
+            break;
+        }
+        game.player.shoot(game.projectiles);
         break;
     }
     }

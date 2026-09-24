@@ -141,6 +141,7 @@ int main(int argc, char** argv) {
                 .y = 0,
             },
             .texture = &resources.player,
+            .shooting = false,
         },
         .structures = initialize_structures(game_frame),
         .enemy_grid = create_enemy_grid(
@@ -259,7 +260,10 @@ void main_game_loop(
         }
     }
 
-    update_projectiles(game.projectiles, delta_time);
+    bool did_ship_shooting_stop = update_projectiles(game.projectiles, delta_time);
+    if (did_ship_shooting_stop) {
+        game.player.shooting = false;
+    }
 
     update_enemy_grid(game, delta_time, resources);
 

@@ -26,6 +26,6 @@ Projectile create_projectile(float x, float y, ProjectileOwner owner, float w = 
 
 void draw_projectile(Projectiles& projectiles, SDL_Renderer* renderer);
 
-void update_projectiles(Projectiles& projectiles, float delta_time);
+bool update_projectiles(Projectiles& projectiles, float delta_time);
 
 #endif
