@@ -195,7 +195,14 @@ void update_enemy_grid(
 		continue;
 	    }
 	    for (auto& projectile: game.projectiles) {
-		if (projectile.owner != ProjectileOwner::Enemy && enemy.hitpoints > 0 && has_collision(enemy.body, projectile.body)) {
+		auto& b = projectile.body;
+		SDL_FRect collision_rect {
+		    .x = b.x,
+		    .y = b.y,
+		    .w = b.w,
+		    .h = 1
+		};
+		if (projectile.owner != ProjectileOwner::Enemy && enemy.hitpoints > 0 && has_collision(enemy.body, collision_rect)) {
 		    // Queue for deletion:
 		    projectile.out_of_bounds = true;
 		    --enemy.hitpoints;
