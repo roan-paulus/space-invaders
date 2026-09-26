@@ -8,13 +8,16 @@ Structure::Structure(SDL_FRect& game_frame, SDL_FRect body)
     , hitpoints{ 8 }
 {
     const int rows{3};
-    const int cols{3};
+    const int cols{4};
 
     float part_width  = this->body.w / cols;
     float part_height = this->body.h / rows;
 
     for (int row{0}; row < rows; ++row) {
 	for (int col{0}; col < cols; ++col) {
+	    if (row == 2 && col > 0 && col < 3) {
+		continue;
+	    }
 	    this->parts.push_back({
 		.body = {
 		    .x = this->body.x + part_width  * static_cast<float>(col % cols),

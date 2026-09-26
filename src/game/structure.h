@@ -13,7 +13,6 @@ struct Part {
 };
 
 class Structure {
-    // TODO: multiple parts and render crumbling of it.
     int hitpoints;
 
 public:

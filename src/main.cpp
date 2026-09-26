@@ -71,10 +71,10 @@ std::vector<Structure> initialize_structures(SDL_FRect& game_frame) {
         structures.push_back(Structure{
             game_frame,
             {
-                .x = x + 52,  // TODO: +52 is measured by eye.
-                .y = 400,
-                .w = 60,
-                .h = 50,
+                .x = x + 38,  // TODO: +52 is measured by eye.
+                .y = 380,
+                .w = 90,
+                .h = 75,
             }
         });
     }
