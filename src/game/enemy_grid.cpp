@@ -1,4 +1,5 @@
 #include "enemy_grid.h"
+#include "game/state.h"
 #include "update_enemy_grid.h"
 
 #include <random>
@@ -19,6 +20,7 @@
 #include <game/animation.h>
 #include <game/collision.h>
 #include <game/projectile.h>
+#include <game/config.h>
 
 void add_enemy_projectile(Game& game);
 void collect_pewpew_enemies(EnemyGrid& enemy_grid);
@@ -244,6 +246,10 @@ void update_enemy_grid(
     } else if (game.enemy_grid.body.x <= game.game_area.x) {
 	game.enemy_grid.direction = Direction::right;
 	game.enemy_grid.body.y += velocity.y;
+    }
+
+    if (game.enemy_grid.body.y + game.enemy_grid.body.h >= Config::structure_y) {
+	game.state = State::Dead;
     }
 
     switch (game.enemy_grid.direction) {
