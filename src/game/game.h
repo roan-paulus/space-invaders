@@ -12,11 +12,13 @@
 #include <game/animation.h>
 #include <game/ui.h>
 #include <game/structure.h>
+#include <game/ufo.h>
 
 struct Game {
     Ship player;
     std::vector<Structure> structures;
     EnemyGrid enemy_grid;
+    UFOSpawner UFO_spawner;
     std::vector<Projectile> projectiles;
     bool running;
     int level;

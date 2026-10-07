@@ -119,6 +119,10 @@ int main(int argc, char** argv) {
             { .x = 0, .y = 0, .w = 64, .h = 64 },
             0.07
         },
+        .ufo = {
+            texture_loader.load("assets/ufo.png"),
+            { .x = 0, .y = 0, .w = 32, .h = 32 }
+        },
     };
 
     // Input '.w' is used as a percentage of the full screen width.
@@ -152,6 +156,7 @@ int main(int argc, char** argv) {
             "level_1",
             resources
         ),
+        .UFO_spawner = { &resources.ufo, &game_frame },
         .projectiles = {},
         .running = true,
         .level = 1,
@@ -227,6 +232,7 @@ int main(int argc, char** argv) {
     SDL_DestroyTexture(resources.green.texture);
     SDL_DestroyTexture(resources.yellow.texture);
     SDL_DestroyTexture(resources.explosion.texture);
+    SDL_DestroyTexture(resources.ufo.texture);
     cleanup(&ctx);
     return 0;
 }
@@ -267,6 +273,23 @@ void main_game_loop(
     }
 
     update_enemy_grid(game, delta_time, resources);
+    if (game.UFO_spawner.should_spawn()) {
+        game.UFO_spawner.spawn();
+    }
+
+    auto player_projectile = get_projectile(game.projectiles, ProjectileOwner::Player);
+    game.UFO_spawner.ufos.update(delta_time, player_projectile);
+    for (auto& ufo : game.UFO_spawner.ufos.ufos) {
+        if (ufo.body.x <= game.game_area.x) {
+            game.UFO_spawner.despawn(game.animation_queue, resources);
+            break;
+        }
+        if (ufo.hitpoints <= 0) {
+            game.score += UFO::points;
+            game.UFO_spawner.despawn(game.animation_queue, resources);
+            break;
+        }
+    }
 
     for (auto& obj : game.animation_queue) {
         obj.animation.step(delta_time);
@@ -289,6 +312,7 @@ void main_game_loop(
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);
     draw_all_structures(ctx.renderer, game.structures);
+    game.UFO_spawner.ufos.draw(ctx.renderer);
 
     // Winning condition check:
     bool found_one_alive = false;

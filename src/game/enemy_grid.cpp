@@ -108,7 +108,7 @@ EnemyGrid create_enemy_grid(
     EnemyGrid result{
 	.body = {
 	    .x = x,
-	    .y = 0,
+	    .y = 52,
 	    .w = enemy_col_amount * 40 + PADDING_X,
 	    .h = enemy_row_amount * 32 + PADDING_Y,
 	},

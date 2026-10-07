@@ -1,12 +1,21 @@
 #include "projectile.h"
 
+#include <vector>
 #include <algorithm>
-#include <iostream>
 
 #include <SDL3/SDL_render.h>
 
 #include <game/enemy_grid.h>
 #include <game/ship.h>
+
+Projectile* get_projectile(std::vector<Projectile>& projectiles, ProjectileOwner owner) {
+    for (auto& projectile : projectiles) {
+        if (projectile.owner == owner) {
+            return &projectile;
+        }
+    }
+    return nullptr;
+}
 
 Projectile create_projectile(float x, float y, ProjectileOwner owner, float w, float h) {
     return {

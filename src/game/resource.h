@@ -10,6 +10,7 @@ struct Resources {
     Texture yellow;
     Texture green;
     Animation explosion;
+    Texture ufo;
 };
 
 #endif
