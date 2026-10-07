@@ -123,6 +123,10 @@ int main(int argc, char** argv) {
             texture_loader.load("assets/ufo.png"),
             { .x = 0, .y = 0, .w = 32, .h = 32 }
         },
+        .structure = {
+            texture_loader.load("assets/wall.png"),
+            { .x = 0, .y = 0, .w = 32, .h = 32}  // TODO: This is unused; need to rethink textures
+        },
     };
 
     // Input '.w' is used as a percentage of the full screen width.
@@ -311,7 +315,7 @@ void main_game_loop(
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);
-    draw_all_structures(ctx.renderer, game.structures);
+    draw_all_structures(ctx.renderer, game.structures, resources.structure);
     game.UFO_spawner.ufos.draw(ctx.renderer);
 
     // Winning condition check:

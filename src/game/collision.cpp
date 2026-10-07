@@ -16,6 +16,7 @@ bool has_collision_update_part(SDL_FRect& a, std::vector<Structure>& structures)
 	for (auto& part : structure.parts) {
 	    if (part.hitpoints > 0 && has_collision(a, part.body)) {
 		--part.hitpoints;
+		part.texture_frame.x += 32;
 		return true;
 	    }
 	}

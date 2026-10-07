@@ -1,4 +1,5 @@
 #include "structure.h"
+#include "SDL3/SDL_render.h"
 
 Structure::Structure(SDL_FRect& game_frame, SDL_FRect body)
     : body{ 
@@ -26,17 +27,23 @@ Structure::Structure(SDL_FRect& game_frame, SDL_FRect body)
 		    .h = part_height,
 		},
 		.hitpoints = 4,
+		.texture_frame = {
+		    .x = 0,
+		    .y = 0,
+		    .w = 32,
+		    .h = 32,
+		},
 	    });
 	}
     }
 }
 
-void draw_all_structures(SDL_Renderer* renderer, std::vector<Structure>& structures) {
+void draw_all_structures(SDL_Renderer* renderer, std::vector<Structure>& structures, Texture& texture) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     for (auto& structure : structures) {
 	for (auto& part : structure.parts) {
 	    if (part.hitpoints > 0) {
-		SDL_RenderRect(renderer, &part.body);
+		SDL_RenderTexture(renderer, texture.texture, &part.texture_frame, &part.body);
 	    }
 	}
     }

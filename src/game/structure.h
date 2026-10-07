@@ -7,9 +7,12 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_rect.h>
 
+#include "game/texture.h"
+
 struct Part {
     SDL_FRect body;
     int hitpoints;
+    SDL_FRect texture_frame;
 };
 
 class Structure {
@@ -20,10 +23,8 @@ public:
     std::vector<Part> parts;
 
     Structure(SDL_FRect& game_frame, SDL_FRect body);
-
-    void draw(SDL_Renderer* renderer);
 };
 
-void draw_all_structures(SDL_Renderer* renderer, std::vector<Structure>& structures);
+void draw_all_structures(SDL_Renderer* renderer, std::vector<Structure>& structures, Texture& texture);
 
 #endif

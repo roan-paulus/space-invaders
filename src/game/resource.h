@@ -11,6 +11,7 @@ struct Resources {
     Texture green;
     Animation explosion;
     Texture ufo;
+    Texture structure;
 };
 
 #endif
