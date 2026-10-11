@@ -29,13 +29,12 @@ struct Game {
     UI left_ui;
     UI right_ui;
 
-    Game* start_state { nullptr };
-
     Game(
         Resources& resources,
         SDL_FRect& game_frame,
         SDL_FRect& ui_left_rect,
-        SDL_FRect& ui_right_rect
+        SDL_FRect& ui_right_rect,
+        int score = 0
     )
     : player{
         .body = {
@@ -64,7 +63,7 @@ struct Game {
     , running{ true }
     , level{ 1 }
     , state{ State::Game }
-    , score{ 0 }
+    , score{ score }
     , animation_queue{ {} }
     , game_area{ game_frame }
     , left_ui{

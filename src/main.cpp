@@ -112,9 +112,7 @@ int main(int argc, char** argv) {
     disribute_window_frame(game_frame);
     disribute_window_frame(ui_right_rect);
 
-    Game start_state { resources, game_frame, ui_left_rect, ui_right_rect };
     Game game { resources, game_frame, ui_left_rect, ui_right_rect };
-    game.start_state = &start_state;
 
     Uint64 last_time_ms{0};
     Uint64 current_time_ms{};
@@ -150,6 +148,15 @@ int main(int argc, char** argv) {
         case State::Dead: {
             DeathScreen::show(ctx, game, resources, death_screen_selection);
             DeathScreen::handle(event, game, resources, death_screen_selection);
+            if (game.state == State::Game) {
+                game = { 
+                    resources,
+                    game_frame,
+                    ui_left_rect,
+                    ui_right_rect,
+                    game.score
+                };
+            }
             break;
         }
         }
