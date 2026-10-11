@@ -11,7 +11,9 @@ enum class Selection {
     Quit
 };
 
-void show(SDLContext& ctx, Game& game, Resources& resources, SDL_Event& event, DeathScreen::Selection& selection);
+void handle(SDL_Event& event, Game& game, Resources& resources, DeathScreen::Selection& selection);
+
+void show(SDLContext& ctx, Game& game, Resources& resources, DeathScreen::Selection& selection);
 
 }
 

@@ -28,6 +28,56 @@ struct Game {
     SDL_FRect game_area;
     UI left_ui;
     UI right_ui;
+
+    Game* start_state { nullptr };
+
+    Game(
+        Resources& resources,
+        SDL_FRect& game_frame,
+        SDL_FRect& ui_left_rect,
+        SDL_FRect& ui_right_rect
+    )
+    : player{
+        .body = {
+            .x = Ship::start_pos_x,
+            .y = Ship::start_pos_y,
+            .w = Ship::width,
+            .h = Ship::height,
+        },
+        .velocity = {
+            .x = 100,
+            .y = 0,
+        },
+        .texture = &resources.player,
+        .shooting = false,
+    }
+    , structures{ initialize_structures(game_frame) }
+    , enemy_grid{ create_enemy_grid(
+            game_frame.w,
+            game_frame.h,
+            game_frame.x,
+            "level_1",
+            resources
+    )}
+    , UFO_spawner{ &resources.ufo, &game_frame }
+    , projectiles{ {} }
+    , running{ true }
+    , level{ 1 }
+    , state{ State::Game }
+    , score{ 0 }
+    , animation_queue{ {} }
+    , game_area{ game_frame }
+    , left_ui{
+        { WidgetType::Score_1, WidgetType::Hiscore, WidgetType::Score_2, },
+        Position::Left,
+        ui_left_rect,
+    }
+    , right_ui{
+        { WidgetType::Lives, WidgetType::Credit, },
+        Position::Right,
+        ui_right_rect,
+    }
+    {}
 };
 
 #endif

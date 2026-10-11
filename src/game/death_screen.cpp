@@ -5,7 +5,7 @@
 
 namespace DeathScreen {
 
-void show(SDLContext& ctx, Game& game, Resources& resources, SDL_Event& event, DeathScreen::Selection& selection) {
+void handle(SDL_Event& event, Game& game, Resources& resources, DeathScreen::Selection& selection) {
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_EVENT_QUIT: {
@@ -46,8 +46,9 @@ void show(SDLContext& ctx, Game& game, Resources& resources, SDL_Event& event, D
         }
         }
     }
+}
 
-
+void show(SDLContext& ctx, Game& game, Resources& resources, DeathScreen::Selection& selection) {
     ctx.text_renderer.draw("You Died.", 0, 0);
 
     std::string score_text = "Score: " + std::to_string(game.score);
@@ -66,4 +67,4 @@ void show(SDLContext& ctx, Game& game, Resources& resources, SDL_Event& event, D
     ctx.text_renderer.draw(exit_text, 100, 30);
 }
 
-}
+} // DeathScreen

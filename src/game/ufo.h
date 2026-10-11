@@ -17,7 +17,7 @@
 
 struct UFO {
     static constexpr float width{ 64 };
-    static constexpr float points{ 10 };
+    static constexpr float points{ 250 };
 
     int hitpoints;
     SDL_FRect body;
@@ -28,7 +28,7 @@ struct UFO {
     : hitpoints{ hitpoints }
     , velocity{ -50, 0 }
     , body{
-        .x = game_frame->w - width,
+        .x = game_frame->w,
         .y = 5,
         .w = width,
         .h = 64,
@@ -110,11 +110,11 @@ public:
             {
                 .animation = resources.explosion,
                 .location = {
-                // Subtraction to get to optimal animation position.
-                ufo.body.x - 8,
-                ufo.body.y - 16,
-                64,
-                64,
+                    // Subtraction to get to optimal animation position.
+                    ufo.body.x - 8,
+                    ufo.body.y - 16,
+                    64,
+                    64,
                 }
             }
         );

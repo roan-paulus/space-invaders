@@ -27,4 +27,6 @@ public:
 
 void draw_all_structures(SDL_Renderer* renderer, std::vector<Structure>& structures, Texture& texture);
 
+std::vector<Structure> initialize_structures(SDL_FRect& game_frame);
+
 #endif

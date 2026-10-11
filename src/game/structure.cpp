@@ -1,5 +1,7 @@
 #include "structure.h"
-#include "SDL3/SDL_render.h"
+
+#include <SDL3/SDL_render.h>
+#include <game/config.h>
 
 Structure::Structure(SDL_FRect& game_frame, SDL_FRect body)
     : body{ 
@@ -47,4 +49,23 @@ void draw_all_structures(SDL_Renderer* renderer, std::vector<Structure>& structu
 	    }
 	}
     }
+}
+
+std::vector<Structure> initialize_structures(SDL_FRect& game_frame) {
+    std::vector<Structure> structures{};
+    const float amount = 4;
+
+    for (int i{ 0 }; i < amount; ++i) {
+        float x = game_frame.w / amount * i;
+        structures.push_back(Structure{
+            game_frame,
+            {
+                .x = x + 46,  // TODO: +52 is measured by eye.
+                .y = Config::structure_y,
+                .w = 70,
+                .h = 55,
+            }
+        });
+    }
+    return structures;
 }

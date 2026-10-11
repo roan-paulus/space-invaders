@@ -30,12 +30,6 @@
 #include <game/projectile.h>
 #include <game/resource.h>
 
-// Player start variables.
-constexpr float width       = 60;
-constexpr float height      = 30;
-constexpr float start_pos_x = WINDOW_WIDTH / 2.0f - width / 2;
-constexpr float start_pos_y = WINDOW_HEIGHT / 8.0f * 7;
-
 void main_game_loop(
     SDLContext& ctx,
     Game& game,
@@ -63,25 +57,6 @@ void disribute_window_frame(SDL_FRect& frame) {
     }
 }
 
-std::vector<Structure> initialize_structures(SDL_FRect& game_frame) {
-    std::vector<Structure> structures{};
-    const float amount = 4;
-
-    for (int i{ 0 }; i < amount; ++i) {
-        float x = game_frame.w / amount * i;
-        structures.push_back(Structure{
-            game_frame,
-            {
-                .x = x + 38,  // TODO: +52 is measured by eye.
-                .y = Config::structure_y,
-                .w = 90,
-                .h = 75,
-            }
-        });
-    }
-    return structures;
-}
-
 int main(int argc, char** argv) {
     SDLContext ctx;
     initialize_sdl(&ctx, "Space Invaders", WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -98,7 +73,7 @@ int main(int argc, char** argv) {
     Resources resources = {
         .player = {
             texture_loader.load("assets/player.png"),
-            { .x = 0, .y = 0, .w = width, .h = height },
+            { .x = 0, .y = 0, .w = Ship::width, .h = Ship::height },
         },
         .red = {
             texture_loader.load("assets/red.png"),
@@ -137,48 +112,9 @@ int main(int argc, char** argv) {
     disribute_window_frame(game_frame);
     disribute_window_frame(ui_right_rect);
 
-    Game game = {
-        .player = {
-            .body = {
-                .x = start_pos_x,
-                .y = start_pos_y,
-                .w = width,
-                .h = height,
-            },
-            .velocity = {
-                .x = 100,
-                .y = 0,
-            },
-            .texture = &resources.player,
-            .shooting = false,
-        },
-        .structures = initialize_structures(game_frame),
-        .enemy_grid = create_enemy_grid(
-            game_frame.w,
-            game_frame.h,
-            game_frame.x,
-            "level_1",
-            resources
-        ),
-        .UFO_spawner = { &resources.ufo, &game_frame },
-        .projectiles = {},
-        .running = true,
-        .level = 1,
-        .state = State::Game,
-        .score = 0,
-        .animation_queue = {},
-        .game_area = game_frame,
-        .left_ui = {
-            { WidgetType::Score_1, WidgetType::Hiscore, WidgetType::Score_2, },
-            Position::Left,
-            ui_left_rect,
-        },
-        .right_ui = {
-            { WidgetType::Lives, WidgetType::Credit, },
-            Position::Right,
-            ui_right_rect,
-        },
-    };
+    Game start_state { resources, game_frame, ui_left_rect, ui_right_rect };
+    Game game { resources, game_frame, ui_left_rect, ui_right_rect };
+    game.start_state = &start_state;
 
     Uint64 last_time_ms{0};
     Uint64 current_time_ms{};
@@ -212,7 +148,8 @@ int main(int argc, char** argv) {
             break;
         }
         case State::Dead: {
-            DeathScreen::show(ctx, game, resources, event, death_screen_selection);
+            DeathScreen::show(ctx, game, resources, death_screen_selection);
+            DeathScreen::handle(event, game, resources, death_screen_selection);
             break;
         }
         }

@@ -25,6 +25,7 @@
 void add_enemy_projectile(Game& game);
 void collect_pewpew_enemies(EnemyGrid& enemy_grid);
 void remove_all_disabled(std::vector<Grunt*> bottom_edge_grunts);
+bool is_loss(Game& game);
 
 GruntGrid parse_grid_layout(std::string& content, Resources& resources) {
     GruntGrid grid {};
@@ -221,7 +222,7 @@ void update_enemy_grid(
 	return;
     }
 
-    const int limit = 10;
+    const int limit = 15;
     static Counter counter { limit };
 
     const float LOWEST_GRID_TIMER_LENGTH = 0.1;
@@ -236,7 +237,7 @@ void update_enemy_grid(
 	game.enemy_grid.body.x + game.enemy_grid.body.w >= game.game_area.x + game.game_area.w;
 
     Vec2 velocity = {
-	.x = 15,
+	.x = 10,
 	.y = 15,
     };
 
@@ -248,8 +249,9 @@ void update_enemy_grid(
 	game.enemy_grid.body.y += velocity.y;
     }
 
-    if (game.enemy_grid.body.y + game.enemy_grid.body.h >= Config::structure_y) {
+    if (is_loss(game)) {
 	game.state = State::Dead;
+	return;
     }
 
     switch (game.enemy_grid.direction) {
@@ -288,6 +290,17 @@ void update_enemy_grid(
 	    }
 	}
     }
+}
+
+bool is_loss(Game& game) {
+    Grunt* lowest_enemy = nullptr;
+    for (int i = 0; i < game.enemy_grid.bottom_edge_grunts.size(); i++) {
+	Grunt* enemy = game.enemy_grid.bottom_edge_grunts[i];
+	if (lowest_enemy == nullptr || enemy->body.y > lowest_enemy->body.y) {
+	    lowest_enemy = enemy;
+	}
+    }
+    return lowest_enemy != nullptr && lowest_enemy->body.y + lowest_enemy->body.h >= Config::structure_y;
 }
 
 void add_enemy_projectile(Game& game) {

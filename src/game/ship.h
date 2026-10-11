@@ -9,7 +9,14 @@
 #include <game/texture.h>
 #include <game/projectile.h>
 
+#include <window_constants.h>
+
 struct Ship {
+    static constexpr float width       = 60;
+    static constexpr float height      = 30;
+    static constexpr float start_pos_x = WINDOW_WIDTH / 2.0f - width / 2;
+    static constexpr float start_pos_y = WINDOW_HEIGHT / 8.0f * 7;
+
     SDL_FRect body;
     Vec2 velocity;
     Texture* texture;
