@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
             DeathScreen::show(ctx, game, resources, death_screen_selection);
             DeathScreen::handle(event, game, resources, death_screen_selection);
             if (game.state == State::Game) {
-                game = { 
+                game = Game {
                     resources,
                     game_frame,
                     ui_left_rect,

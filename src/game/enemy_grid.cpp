@@ -215,6 +215,12 @@ void update_enemy_grid(
     }
 
     if (game.enemy_grid.projectile_timer.is_timeout_and_step(delta_time)) {
+	// TODO: Dirty hack to fix the bullets from spawning to the edge of a screen after a new game.
+	// The cause is probably a bad pointer to an invalid state, this getting the state valid again.
+	if (game.enemy_grid.bottom_edge_grunts.size() > 0 && game.enemy_grid.bottom_edge_grunts[0]->body.y == 0) {
+	    game.enemy_grid.bottom_edge_grunts.clear();
+	    collect_pewpew_enemies(game.enemy_grid);
+	}
 	add_enemy_projectile(game);
     }
 
