@@ -11,7 +11,7 @@
 
 #include <window_constants.h>
 
-struct Ship {
+struct Player {
     static constexpr float width       = 60;
     static constexpr float height      = 30;
     static constexpr float start_pos_x = WINDOW_WIDTH / 2.0f - width / 2;
@@ -19,6 +19,7 @@ struct Ship {
 
     SDL_FRect body;
     Vec2 velocity;
+    int lives;
     Texture* texture;
     bool shooting;
 

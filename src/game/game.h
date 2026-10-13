@@ -15,7 +15,7 @@
 #include <game/ufo.h>
 
 struct Game {
-    Ship player;
+    Player player;
     std::vector<Structure> structures;
     EnemyGrid enemy_grid;
     UFOSpawner UFO_spawner;
@@ -34,19 +34,21 @@ struct Game {
         SDL_FRect& game_frame,
         SDL_FRect& ui_left_rect,
         SDL_FRect& ui_right_rect,
-        int score = 0
+        int score = 0,
+        int lives = 3
     )
     : player{
         .body = {
-            .x = Ship::start_pos_x,
-            .y = Ship::start_pos_y,
-            .w = Ship::width,
-            .h = Ship::height,
+            .x = Player::start_pos_x,
+            .y = Player::start_pos_y,
+            .w = Player::width,
+            .h = Player::height,
         },
         .velocity = {
             .x = 100,
             .y = 0,
         },
+        .lives = lives,
         .texture = &resources.player,
         .shooting = false,
     }

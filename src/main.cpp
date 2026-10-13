@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     Resources resources = {
         .player = {
             texture_loader.load("assets/player.png"),
-            { .x = 0, .y = 0, .w = Ship::width, .h = Ship::height },
+            { .x = 0, .y = 0, .w = Player::width, .h = Player::height },
         },
         .red = {
             texture_loader.load("assets/red.png"),
@@ -146,6 +146,9 @@ int main(int argc, char** argv) {
             break;
         }
         case State::Dead: {
+            if (game.player.lives <= 0) {
+                // TODO: Show gameover screen.
+            }
             DeathScreen::show(ctx, game, resources, death_screen_selection);
             DeathScreen::handle(event, game, resources, death_screen_selection);
             if (game.state == State::Game) {
@@ -154,7 +157,8 @@ int main(int argc, char** argv) {
                     game_frame,
                     ui_left_rect,
                     ui_right_rect,
-                    game.score
+                    game.score,
+                    game.player.lives
                 };
             }
             break;
@@ -205,6 +209,7 @@ void main_game_loop(
     }
     for (auto& projectile : game.projectiles) {
         if (has_collision(game.player.body, projectile.body)) {
+            --game.player.lives;
             game.state = State::Dead;
         } else if (has_collision_update_part(projectile.body, game.structures)) {
             if (projectile.owner == ProjectileOwner::Player) {
@@ -254,8 +259,8 @@ void main_game_loop(
         game.animation_queue.end()
     );
 
-    game.left_ui.draw(ctx, game.score);
-    game.right_ui.draw(ctx, game.score);
+    game.left_ui.draw(ctx, game.score, game.player);
+    game.right_ui.draw(ctx, game.score, game.player);
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);

@@ -7,6 +7,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "engine/init.h"
+#include "game/ship.h"
 #include "window_constants.h"
 
 const size_t UITYPE_AMOUNT = 6;
@@ -42,18 +43,18 @@ struct UI {
         }
     }
 
-    void draw(SDLContext& ctx, int score) {
+    void draw(SDLContext& ctx, int score, const Player& player) {
         // Draw the box arround the whole UI Area.
         SDL_RenderRect(ctx.renderer, &this->body);
 
         for (int i = 0; i < this->widgets.size(); ++i) {
             const WidgetType w = this->widgets[i];
-            draw_widget(ctx, w, i, score);
+            draw_widget(ctx, w, i, score, player);
         }
     }
 
 private:
-    void draw_widget(SDLContext& ctx, WidgetType widget, int ui_position, int score) {
+    void draw_widget(SDLContext& ctx, WidgetType widget, int ui_position, int score, const Player& player) {
         switch (widget) {
         case WidgetType::Score_1: {
             std::string text = "Score<1>";
@@ -74,6 +75,9 @@ private:
         }
         case WidgetType::Lives: {
             std::string text = "Lives";
+            for (int i = player.lives; i > 0; --i) {
+                text += " █";
+            }
             ctx.text_renderer.draw(text, WINDOW_WIDTH - 70, 10);
             break;
         }
