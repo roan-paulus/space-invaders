@@ -34,7 +34,7 @@ struct Game {
         SDL_FRect& ui_left_rect,
         SDL_FRect& ui_right_rect,
         int score = 0,
-        int lives = 0
+        int lives = 3
     )
     : player{
         .body = {

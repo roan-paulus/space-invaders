@@ -1,5 +1,6 @@
 #include "death_screen.h"
 #include "game/enemy_grid.h"
+#include "window_constants.h"
 
 #include <string>
 
@@ -65,6 +66,24 @@ void show(SDLContext& ctx, Game& game, Resources& resources, DeathScreen::Select
 	exit_text = "> " + exit_text;
     }
     ctx.text_renderer.draw(exit_text, 100, 30);
+}
+
+void show_game_over(SDLContext& ctx, Game& game, Resources& resources, DeathScreen::Selection& selection) {
+    float old_size = ctx.text_renderer.get_font_size();
+    ctx.text_renderer.set_font_size(64);
+
+    float ww = WINDOW_WIDTH;
+    float wh = WINDOW_HEIGHT;
+    const float parts_height = 10;
+
+    ctx.text_renderer.draw("Game over", ww / 2, wh / parts_height * 3);
+
+    ctx.text_renderer.set_font_size(32);
+    std::string score_text = "Final score: " + std::to_string(game.player.score);
+    ctx.text_renderer.draw(score_text, ww / 2, wh / parts_height * 6);
+
+
+    ctx.text_renderer.set_font_size(old_size);
 }
 
 } // DeathScreen

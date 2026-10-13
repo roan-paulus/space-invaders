@@ -43,7 +43,7 @@ struct UI {
         }
     }
 
-    void draw(SDLContext& ctx, int score, const Player& player) {
+    void draw(SDLContext& ctx, const Player& player) {
         // Draw the box arround the whole UI Area.
         SDL_RenderRect(ctx.renderer, &this->body);
 

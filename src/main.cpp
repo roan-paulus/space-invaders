@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     SDLContext ctx;
     initialize_sdl(&ctx, "Space Invaders", WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    TextureLoader texture_loader{ ctx.renderer };
+    TextureLoader texture_loader { ctx.renderer };
 
     const SDL_FRect enemy_texture_default = {
         .x = 0,
@@ -147,19 +147,21 @@ int main(int argc, char** argv) {
         }
         case State::Dead: {
             if (game.player.lives <= 0) {
-                // TODO: Show gameover screen.
-            }
-            DeathScreen::show(ctx, game, resources, death_screen_selection);
-            DeathScreen::handle(event, game, resources, death_screen_selection);
-            if (game.state == State::Game) {
-                game = Game {
-                    resources,
-                    game_frame,
-                    ui_left_rect,
-                    ui_right_rect,
-                    game.player.score,
-                    game.player.lives
-                };
+                DeathScreen::show_game_over(ctx, game, resources, death_screen_selection);
+                DeathScreen::handle(event, game, resources, death_screen_selection);
+            } else {
+                DeathScreen::show(ctx, game, resources, death_screen_selection);
+                DeathScreen::handle(event, game, resources, death_screen_selection);
+                if (game.state == State::Game) {
+                    game = Game {
+                        resources,
+                        game_frame,
+                        ui_left_rect,
+                        ui_right_rect,
+                        game.player.score,
+                        game.player.lives
+                    };
+                }
             }
             break;
         }
@@ -259,8 +261,8 @@ void main_game_loop(
         game.animation_queue.end()
     );
 
-    game.left_ui.draw(ctx, game.player.score, game.player);
-    game.right_ui.draw(ctx, game.player.score, game.player);
+    game.left_ui.draw(ctx, game.player);
+    game.right_ui.draw(ctx, game.player);
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);
