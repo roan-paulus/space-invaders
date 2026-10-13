@@ -157,7 +157,7 @@ int main(int argc, char** argv) {
                     game_frame,
                     ui_left_rect,
                     ui_right_rect,
-                    game.score,
+                    game.player.score,
                     game.player.lives
                 };
             }
@@ -238,7 +238,7 @@ void main_game_loop(
             break;
         }
         if (ufo.hitpoints <= 0) {
-            game.score += UFO::points;
+            game.player.score += UFO::points;
             game.UFO_spawner.despawn(game.animation_queue, resources);
             break;
         }
@@ -259,8 +259,8 @@ void main_game_loop(
         game.animation_queue.end()
     );
 
-    game.left_ui.draw(ctx, game.score, game.player);
-    game.right_ui.draw(ctx, game.score, game.player);
+    game.left_ui.draw(ctx, game.player.score, game.player);
+    game.right_ui.draw(ctx, game.player.score, game.player);
     game.enemy_grid.draw(ctx.renderer);
     draw_projectile(game.projectiles, ctx.renderer);
     game.player.draw(ctx.renderer);

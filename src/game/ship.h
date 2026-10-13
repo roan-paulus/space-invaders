@@ -16,12 +16,15 @@ struct Player {
     static constexpr float height      = 30;
     static constexpr float start_pos_x = WINDOW_WIDTH / 2.0f - width / 2;
     static constexpr float start_pos_y = WINDOW_HEIGHT / 8.0f * 7;
+    static constexpr int START_HISCORE = 0;
 
     SDL_FRect body;
     Vec2 velocity;
     int lives;
     Texture* texture;
     bool shooting;
+    int score;
+    int hiscore { START_HISCORE };
 
     void draw(SDL_Renderer* renderer) {
         SDL_RenderTexture(renderer, texture->texture, &texture->frame, &body);

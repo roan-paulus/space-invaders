@@ -23,7 +23,6 @@ struct Game {
     bool running;
     int level;
     State state;
-    int score;
     std::vector<AnimationObject> animation_queue;
     SDL_FRect game_area;
     UI left_ui;
@@ -35,7 +34,7 @@ struct Game {
         SDL_FRect& ui_left_rect,
         SDL_FRect& ui_right_rect,
         int score = 0,
-        int lives = 3
+        int lives = 0
     )
     : player{
         .body = {
@@ -51,6 +50,7 @@ struct Game {
         .lives = lives,
         .texture = &resources.player,
         .shooting = false,
+        .score = score,
     }
     , structures{ initialize_structures(game_frame) }
     , enemy_grid{ create_enemy_grid(
@@ -65,7 +65,6 @@ struct Game {
     , running{ true }
     , level{ 1 }
     , state{ State::Game }
-    , score{ score }
     , animation_queue{ {} }
     , game_area{ game_frame }
     , left_ui{

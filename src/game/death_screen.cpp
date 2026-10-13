@@ -51,7 +51,7 @@ void handle(SDL_Event& event, Game& game, Resources& resources, DeathScreen::Sel
 void show(SDLContext& ctx, Game& game, Resources& resources, DeathScreen::Selection& selection) {
     ctx.text_renderer.draw("You Died.", 0, 0);
 
-    std::string score_text = "Score: " + std::to_string(game.score);
+    std::string score_text = "Score: " + std::to_string(game.player.score);
     ctx.text_renderer.draw(score_text, 0, 30);
 
     std::string continue_text = "Continue";

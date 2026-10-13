@@ -49,22 +49,23 @@ struct UI {
 
         for (int i = 0; i < this->widgets.size(); ++i) {
             const WidgetType w = this->widgets[i];
-            draw_widget(ctx, w, i, score, player);
+            draw_widget(ctx, w, i, player);
         }
     }
 
 private:
-    void draw_widget(SDLContext& ctx, WidgetType widget, int ui_position, int score, const Player& player) {
+    void draw_widget(SDLContext& ctx, WidgetType widget, int ui_position, const Player& player) {
         switch (widget) {
         case WidgetType::Score_1: {
             std::string text = "Score<1>";
             ctx.text_renderer.draw(text, 10, 10);
-            std::string score_text = std::to_string(score);
+            std::string score_text = std::to_string(player.score);
             ctx.text_renderer.draw(score_text, 10, 30);
             break;
         }
         case WidgetType::Hiscore: {
             std::string text = "Hiscore";
+            text += " " + std::to_string(player.hiscore);
             ctx.text_renderer.draw(text, 10, 50);
             break;
         }

@@ -41,7 +41,7 @@ void win_screen(SDLContext& ctx, Game& game, SDL_Event& event, WinScreen::Select
 
     ctx.text_renderer.draw("You won!", 0, 0);
 
-    std::string score_text = "Score: " + std::to_string(game.score);
+    std::string score_text = "Score: " + std::to_string(game.player.score);
     ctx.text_renderer.draw(score_text, 0, 30);
 
     std::string continue_text = "Continue";

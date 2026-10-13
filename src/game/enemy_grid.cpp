@@ -179,7 +179,7 @@ void update_enemy_grid(
 	    auto& enemy = enemies[j];
 	    // TODO: Remove size check
 	    if (enemy.hitpoints == 0 && enemy.enabled && game.animation_queue.size() == 0) {
-		++game.score;
+		++game.player.score;
 		enemy.enabled = false;
 		AnimationObject ao = {
 		    .animation = resources.explosion,
