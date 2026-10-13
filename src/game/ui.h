@@ -82,7 +82,7 @@ private:
             break;
         }
         case WidgetType::Credit: {
-            std::string text = "Credit 00";
+            std::string text = "Credits oo";
             ctx.text_renderer.draw(text, WINDOW_WIDTH - 70, 30);
             break;
         }
