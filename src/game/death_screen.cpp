@@ -69,6 +69,8 @@ void show(SDLContext& ctx, Game& game, Resources& resources, DeathScreen::Select
 }
 
 void show_game_over(SDLContext& ctx, Game& game, Resources& resources, DeathScreen::Selection& selection) {
+    auto& tr = ctx.text_renderer;
+
     float old_size = ctx.text_renderer.get_font_size();
     ctx.text_renderer.set_font_size(64);
 
@@ -76,14 +78,20 @@ void show_game_over(SDLContext& ctx, Game& game, Resources& resources, DeathScre
     float wh = WINDOW_HEIGHT;
     const float parts_height = 10;
 
-    ctx.text_renderer.draw("Game over", ww / 2, wh / parts_height * 3);
+    std::string game_over_text = "Game over";
 
-    ctx.text_renderer.set_font_size(32);
-    std::string score_text = "Final score: " + std::to_string(game.player.score);
-    ctx.text_renderer.draw(score_text, ww / 2, wh / parts_height * 6);
+    tr.draw_centered(game_over_text, ww / 2, wh / parts_height * 3);
 
+    tr.set_font_size(32);
+    std::string score_text;
+    if (game.player.score > game.player.hiscore) {
+        score_text = "New hiscore: " + std::to_string(game.player.score);
+    } else {
+        score_text = "Final score: " + std::to_string(game.player.score);
+    }
+    tr.draw_centered(score_text, ww / 2, wh / parts_height * 6);
 
-    ctx.text_renderer.set_font_size(old_size);
+    tr.set_font_size(old_size);
 }
 
 } // DeathScreen
