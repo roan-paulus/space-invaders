@@ -235,7 +235,7 @@ void main_game_loop(
     auto player_projectile = get_projectile(game.projectiles, ProjectileOwner::Player);
     game.UFO_spawner.ufos.update(delta_time, player_projectile);
     for (auto& ufo : game.UFO_spawner.ufos.ufos) {
-        if (ufo.body.x <= game.game_area.x) {
+        if (ufo.body.x <= game.game_area.x || ufo.body.x >= game.game_area.x + game.game_area.w) {
             game.UFO_spawner.despawn(game.animation_queue, resources);
             break;
         }

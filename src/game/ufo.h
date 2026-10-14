@@ -1,6 +1,7 @@
 #ifndef UFO_H
 #define UFO_H
 
+#include "engine/physics/direction.h"
 #include "game/animation.h"
 #include "game/resource.h"
 #include <random>
@@ -24,11 +25,11 @@ struct UFO {
     Vec2 velocity;
     Texture* texture;
 
-    UFO(int hitpoints, Texture* texture, SDL_FRect* game_frame)
+    UFO(int hitpoints, Direction direction, Texture* texture, SDL_FRect* game_frame)
     : hitpoints{ hitpoints }
-    , velocity{ -50, 0 }
+    , velocity{ direction == Direction::left ? -50.0f : 50.0f, 0 }
     , body{
-        .x = game_frame->w,
+        .x = direction == Direction::left ? game_frame->w : game_frame->x,
         .y = 5,
         .w = width,
         .h = 64,
@@ -100,7 +101,16 @@ public:
 
     void spawn() {
         const int hitpoints = 1;
-        UFO ufo = { hitpoints, texture, game_frame };
+
+        std::uniform_int_distribution generate_random_number{ 1, 2 };
+        int i = generate_random_number(this->random_number_generator);
+
+        UFO ufo = {
+            hitpoints,
+            i == 1 ? Direction::left : Direction::right,
+            texture,
+            game_frame
+        };
         ufos.push(ufo);
     }
 
