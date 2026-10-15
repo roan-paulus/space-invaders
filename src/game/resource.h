@@ -9,9 +9,11 @@ struct Resources {
     Texture red;
     Texture yellow;
     Texture green;
-    Animation explosion;
     Texture ufo;
     Texture structure;
+    Texture skull;
+    Texture bleeding_skull;
+    Animation explosion;
 };
 
 #endif

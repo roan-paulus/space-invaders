@@ -11,6 +11,7 @@
 
 #include "SDL3/SDL_rect.h"
 #include "event/handle.h"
+#include "game/animation.h"
 #include "game/collision.h"
 #include "game/death_screen.h"
 #include "game/game.h"
@@ -87,13 +88,6 @@ int main(int argc, char** argv) {
             texture_loader.load("assets/green.png"),
             enemy_texture_default,
         },
-        .explosion = {
-            4,
-            1,
-            texture_loader.load("assets/explosion.png"),
-            { .x = 0, .y = 0, .w = 64, .h = 64 },
-            0.07
-        },
         .ufo = {
             texture_loader.load("assets/ufo.png"),
             { .x = 0, .y = 0, .w = 32, .h = 32 }
@@ -101,6 +95,20 @@ int main(int argc, char** argv) {
         .structure = {
             texture_loader.load("assets/wall.png"),
             { .x = 0, .y = 0, .w = 32, .h = 32}  // TODO: This is unused; need to rethink textures
+        },
+        .skull = {
+            texture_loader.load("assets/skull.png"),
+            { .x = 0, .y = 0, .w = 115, .h = 139 },
+        },
+        .bleeding_skull = {
+            texture_loader.load("assets/bleeding-skull.png"),
+            { .x = 0, .y = 0, .w = 115, .h = 139 },
+        },
+        .explosion = Animation {
+            4, 1,
+            texture_loader.load("assets/explosion.png"),
+            { .x = 0, .y = 0, .w = 64, .h = 64 },
+            0.07
         },
     };
 
@@ -213,6 +221,25 @@ void main_game_loop(
         if (has_collision(game.player.body, projectile.body)) {
             --game.player.lives;
             game.state = State::Dead;
+            SDL_FRect to = {
+                .x = game.player.body.x,
+                .y = game.player.body.y - resources.skull.frame.h,
+                .w = resources.skull.frame.w,
+                .h = resources.skull.frame.h
+            };
+            SDL_RenderTexture(ctx.renderer, resources.skull.texture, &resources.skull.frame, &to);
+            SDL_RenderPresent(ctx.renderer);
+            const int wait_time_ms = 1000;
+            SDL_Delay(wait_time_ms);
+            to = {
+                .x = game.player.body.x,
+                .y = game.player.body.y - resources.bleeding_skull.frame.h,
+                .w = resources.bleeding_skull.frame.w,
+                .h = resources.bleeding_skull.frame.h
+            };
+            SDL_RenderTexture(ctx.renderer, resources.bleeding_skull.texture, &resources.bleeding_skull.frame, &to);
+            SDL_RenderPresent(ctx.renderer);
+            SDL_Delay(wait_time_ms);
         } else if (has_collision_update_part(projectile.body, game.structures)) {
             if (projectile.owner == ProjectileOwner::Player) {
                 projectile.out_of_bounds = true;

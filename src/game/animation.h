@@ -5,7 +5,6 @@
 #include <SDL3/SDL_render.h>
 
 #include <game/timer.h>
-#include <iostream>
 
 class Animation {
     int cols;
