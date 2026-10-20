@@ -38,6 +38,7 @@ void main_game_loop(
     SDL_Event& event,
     float delta_time
 );
+void player_dead(SDLContext& ctx, Game& game, Resources& resources);
 void assert(bool is_true, const char* message);
 void assert_startup_state();
 
@@ -219,33 +220,9 @@ void main_game_loop(
     }
     for (auto& projectile : game.projectiles) {
         if (has_collision(game.player.body, projectile.body)) {
-            --game.player.lives;
-            game.state = State::Dead;
-            SDL_FRect to = {
-                .x = game.player.body.x,
-                .y = game.player.body.y - resources.skull.frame.h,
-                .w = resources.skull.frame.w,
-                .h = resources.skull.frame.h
-            };
-            SDL_RenderTexture(ctx.renderer, resources.skull.texture, &resources.skull.frame, &to);
-            SDL_RenderPresent(ctx.renderer);
-            const int wait_time_ms = 1000;
-            SDL_Delay(wait_time_ms);
-            to = {
-                .x = game.player.body.x,
-                .y = game.player.body.y - resources.bleeding_skull.frame.h,
-                .w = resources.bleeding_skull.frame.w,
-                .h = resources.bleeding_skull.frame.h
-            };
-            SDL_RenderTexture(ctx.renderer, resources.bleeding_skull.texture, &resources.bleeding_skull.frame, &to);
-            SDL_RenderPresent(ctx.renderer);
-            SDL_Delay(wait_time_ms);
+            player_dead(ctx, game, resources);
         } else if (has_collision_update_part(projectile.body, game.structures)) {
-            if (projectile.owner == ProjectileOwner::Player) {
-                projectile.out_of_bounds = true;
-            } else {
-                projectile.out_of_bounds = true;
-            }
+            projectile.out_of_bounds = true;
         }
     }
 
@@ -313,6 +290,30 @@ end_enemy_check:
         game.enemy_grid = create_enemy_grid(game.game_area.w, game.game_area.h, game.game_area.x, "level_" + std::to_string(game.level), resources);
     }
     return;
+}
+
+void player_dead(SDLContext& ctx, Game& game, Resources& resources) {
+        --game.player.lives;
+        game.state = State::Dead;
+        SDL_FRect to = {
+            .x = game.player.body.x,
+            .y = game.player.body.y - resources.skull.frame.h,
+            .w = resources.skull.frame.w,
+            .h = resources.skull.frame.h
+        };
+        SDL_RenderTexture(ctx.renderer, resources.skull.texture, &resources.skull.frame, &to);
+        SDL_RenderPresent(ctx.renderer);
+        const int wait_time_ms = 1000;
+        SDL_Delay(wait_time_ms);
+        to = {
+            .x = game.player.body.x,
+            .y = game.player.body.y - resources.bleeding_skull.frame.h,
+            .w = resources.bleeding_skull.frame.w,
+            .h = resources.bleeding_skull.frame.h
+        };
+        SDL_RenderTexture(ctx.renderer, resources.bleeding_skull.texture, &resources.bleeding_skull.frame, &to);
+        SDL_RenderPresent(ctx.renderer);
+        SDL_Delay(wait_time_ms);
 }
 
 void assert(bool is_true, const char* message) {
