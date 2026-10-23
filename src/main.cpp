@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <algorithm>
+#include <ranges>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
@@ -255,15 +256,9 @@ void main_game_loop(
         obj.animation.draw(ctx.renderer, &obj.location);
     }
 
-    game.animation_queue.erase(
-        std::remove_if(
-            game.animation_queue.begin(), game.animation_queue.end(),
-            [](auto ao) {
-                return ao.animation.is_at_end();
-            }
-        ),
-        game.animation_queue.end()
-    );
+    std::erase_if(game.animation_queue, [](auto& ao) {
+        return ao.animation.is_at_end();
+    });
 
     game.left_ui.draw(ctx, game.player);
     game.right_ui.draw(ctx, game.player);
@@ -274,16 +269,12 @@ void main_game_loop(
     game.UFO_spawner.ufos.draw(ctx.renderer);
 
     // Winning condition check:
-    bool found_one_alive = false;
-    for (auto& row : game.enemy_grid.enemies) {
-        for (auto& enemy : row) {
-            if (enemy.hitpoints > 0) {
-                found_one_alive = true;
-                goto end_enemy_check;
-            }
+    bool found_one_alive = std::ranges::any_of(
+        game.enemy_grid.enemies | std::views::join,
+        [](auto& enemy){
+            return enemy.hitpoints > 0;
         }
-    }
-end_enemy_check:
+    );
     if (!found_one_alive) {
         ++game.level;
         game.state = State::Win;

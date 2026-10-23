@@ -50,15 +50,9 @@ bool update_projectiles(Projectiles& projectiles, float delta_time) {
         }
     }
 
-    projectiles.erase(
-        std::remove_if(
-            projectiles.begin(), projectiles.end(),
-            [](const Projectile& entity) {
-                return entity.out_of_bounds;
-            }
-        ),
-        projectiles.end()
-    );
+    std::erase_if(projectiles, [](const Projectile& entity) {
+        return entity.out_of_bounds;
+    });
 
     return did_ship_shooting_stop;
 }

@@ -3,6 +3,7 @@
 #include "update_enemy_grid.h"
 
 #include <random>
+#include <ranges>
 #include <string>
 #include <array>
 #include <cctype>
