@@ -149,6 +149,16 @@ int main(int argc, char** argv) {
         }
         case State::Win: {
             WinScreen::win_screen(ctx, game, event, winscreen_selection);
+            if (game.state == State::Game) {
+                game = Game {
+                    resources,
+                    game_frame,
+                    ui_left_rect,
+                    ui_right_rect,
+                    game.player.score,
+                    game.player.lives
+                };
+            }
             break;
         }
         case State::Game: {
@@ -272,13 +282,11 @@ void main_game_loop(
     bool found_one_alive = std::ranges::any_of(
         game.enemy_grid.enemies | std::views::join,
         [](auto& enemy){
-            return enemy.hitpoints > 0;
+            return enemy.enabled;
         }
     );
     if (!found_one_alive) {
-        ++game.level;
         game.state = State::Win;
-        game.enemy_grid = create_enemy_grid(game.game_area.w, game.game_area.h, game.game_area.x, "level_" + std::to_string(game.level), resources);
     }
     return;
 }
